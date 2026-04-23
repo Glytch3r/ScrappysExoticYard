@@ -476,13 +476,13 @@
 <body>
 
 <header>
-  <div class="logo-mark">Pogona</div>
+  <div class="logo-mark">Scrappy's Exotic Yard</div>
+  <img src="ScrappyLogoSmall.png" alt="Scrappy's Exotic Yard" style="width:95px;height:63px;object-fit:contain;align-self:center;">
   <div class="header-main">
-    <h1>Genetics <span>Calculator</span></h1>
+    <h1>Linage <span>Tool</span></h1>
     <div class="header-sub">Bearded Dragon Breeding — Phenotype & Probability Engine</div>
   </div>
-  <div class="header-badge">v1.0 · Client-Side</div>
-  <img src="ScrappyLogoSmall.png" alt="Scrappy's Exotic Yard" style="width:95px;height:63px;object-fit:contain;margin-left:12px;">
+  <div class="header-badge">v1.0 · Beta</div>
 </header>
 
 <div class="app-container">
@@ -498,14 +498,14 @@
         <div class="pedigree-row">
           <div class="field-group">
             <label>Sire Name</label>
-            <input type="text" id="sire-name" placeholder="e.g. Shadow">
+            <input type="text" id="sire-name" placeholder="e.g. Skippy">
           </div>
           <div class="field-group">
-            <label>Grandfather (GF)</label>
+            <label>Father</label>
             <input type="text" id="sire-gf" placeholder="Father's name">
           </div>
           <div class="field-group">
-            <label>Grandmother (GM)</label>
+            <label>Mother</label>
             <input type="text" id="sire-gm" placeholder="Mother's name">
           </div>
         </div>
@@ -527,14 +527,14 @@
         <div class="pedigree-row">
           <div class="field-group">
             <label>Dam Name</label>
-            <input type="text" id="dam-name" placeholder="e.g. Ember">
+            <input type="text" id="dam-name" placeholder="e.g. Comet">
           </div>
           <div class="field-group">
-            <label>Grandfather (GF)</label>
+            <label>Father</label>
             <input type="text" id="dam-gf" placeholder="Father's name">
           </div>
           <div class="field-group">
-            <label>Grandmother (GM)</label>
+            <label>Mother</label>
             <input type="text" id="dam-gm" placeholder="Mother's name">
           </div>
         </div>
@@ -616,6 +616,11 @@ const GENES = {
     category: 'nonmendelian',
     states: ['High Expression','Low Expression','None'],
     short: 'Color'
+  },
+  'Genetic Stripe': {
+    category: 'recessive',
+    states: ['Visual','Het','66% Poss Het','50% Poss Het','Normal','Unknown'],
+    short: 'Stripe'
   }
 };
 
@@ -624,9 +629,21 @@ let geneCounters = { sire: 0, dam: 0 };
 const parentGenes = { sire: {}, dam: {} };
 
 // ─── ADD GENE ROW ─────────────────────────────────────────────────────────────
+function getUsedGenes(parent) {
+  return Object.values(parentGenes[parent]).map(g => g.gene);
+}
+
 function addGene(parent, prefillGene, prefillState) {
   const list = document.getElementById(`${parent}-genes`);
   const empty = document.getElementById(`${parent}-empty`);
+
+  // Find first unused gene
+  const used = getUsedGenes(parent);
+  const available = Object.keys(GENES).filter(g => !used.includes(g));
+  if (available.length === 0) return; // all genes already added
+
+  const geneToAdd = prefillGene && available.includes(prefillGene) ? prefillGene : available[0];
+
   const id = ++geneCounters[parent];
   const rowId = `${parent}-gene-${id}`;
 
@@ -634,23 +651,56 @@ function addGene(parent, prefillGene, prefillState) {
   row.className = 'gene-row';
   row.id = rowId;
 
-  // Gene select
+  // Gene select — only show unused genes (plus current one)
   const sel = document.createElement('select');
-  sel.innerHTML = Object.keys(GENES).map(g =>
-    `<option value="${g}" ${prefillGene===g?'selected':''}>${g}</option>`
-  ).join('');
+  refreshGeneSelect(sel, parent, geneToAdd);
   sel.onchange = () => {
+    // Check if newly selected gene is already used by another row
+    const usedNow = getUsedGenes(parent);
+    const oldGene = parentGenes[parent][id]?.gene;
+    const newGene = sel.value;
+    if (usedNow.includes(newGene) && newGene !== oldGene) {
+      sel.value = oldGene; // revert
+      return;
+    }
     renderStates(row, sel.value, parent, id);
+    refreshAllGeneSelects(parent);
     checkWeroLogic(parent);
   };
-
   row.appendChild(sel);
 
-  // States container
+  // States + percent container (flex column)
+  const stateCol = document.createElement('div');
+  stateCol.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
+
   const stateWrap = document.createElement('div');
   stateWrap.className = 'state-radios';
   stateWrap.id = `${rowId}-states`;
-  row.appendChild(stateWrap);
+  stateCol.appendChild(stateWrap);
+
+  // Percent input row (only for recessive poss het)
+  const pctRow = document.createElement('div');
+  pctRow.id = `${rowId}-pctrow`;
+  pctRow.style.cssText = 'display:none;align-items:center;gap:6px;';
+  const pctInput = document.createElement('input');
+  pctInput.type = 'number';
+  pctInput.id = `${rowId}-pct`;
+  pctInput.min = 0; pctInput.max = 100; pctInput.step = 1;
+  pctInput.style.cssText = 'width:64px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 7px;color:var(--accent);font-family:"DM Mono",monospace;font-size:12px;outline:none;';
+  const pctLabel = document.createElement('span');
+  pctLabel.textContent = '% poss het';
+  pctLabel.style.cssText = 'font-size:10px;color:var(--text-dim);';
+  pctRow.appendChild(pctInput);
+  pctRow.appendChild(pctLabel);
+  stateCol.appendChild(pctRow);
+
+  // Sync: percent input → radio buttons
+  pctInput.addEventListener('input', () => {
+    const val = parseFloat(pctInput.value);
+    syncRadioFromPct(rowId, parent, id, val, sel.value);
+  });
+
+  row.appendChild(stateCol);
 
   // Proven checkbox
   const provenLabel = document.createElement('label');
@@ -670,6 +720,7 @@ function addGene(parent, prefillGene, prefillState) {
     delete parentGenes[parent][id];
     row.remove();
     if (!list.children.length) empty.style.display = 'block';
+    refreshAllGeneSelects(parent);
     checkWeroLogic(parent);
   };
   row.appendChild(removeBtn);
@@ -677,13 +728,79 @@ function addGene(parent, prefillGene, prefillState) {
   list.appendChild(row);
   empty.style.display = 'none';
 
-  renderStates(row, sel.value, parent, id, prefillState);
-  parentGenes[parent][id] = { gene: sel.value, state: prefillState || getDefaultState(sel.value) };
+  renderStates(row, geneToAdd, parent, id, prefillState);
+  parentGenes[parent][id] = { gene: geneToAdd, state: prefillState || getDefaultState(geneToAdd) };
+  refreshAllGeneSelects(parent);
   checkWeroLogic(parent);
+}
+
+function refreshGeneSelect(sel, parent, currentGene) {
+  const used = getUsedGenes(parent);
+  sel.innerHTML = Object.keys(GENES).map(g => {
+    const disabled = used.includes(g) && g !== currentGene;
+    return `<option value="${g}" ${g === currentGene ? 'selected' : ''} ${disabled ? 'disabled style="color:#4a4438"' : ''}>${g}${disabled ? ' ✓' : ''}</option>`;
+  }).join('');
+}
+
+function refreshAllGeneSelects(parent) {
+  const list = document.getElementById(`${parent}-genes`);
+  if (!list) return;
+  list.querySelectorAll('select').forEach(sel => {
+    const rowId = sel.closest('.gene-row')?.id;
+    if (!rowId) return;
+    const parts = rowId.split('-gene-');
+    const id = parseInt(parts[1]);
+    const currentGene = parentGenes[parent][id]?.gene;
+    if (currentGene) refreshGeneSelect(sel, parent, currentGene);
+  });
 }
 
 function getDefaultState(geneName) {
   return GENES[geneName].states[0];
+}
+
+// Map a percentage to the closest named state and update radios
+function syncRadioFromPct(rowId, parent, id, val, geneName) {
+  if (isNaN(val)) return;
+  val = Math.max(0, Math.min(100, val));
+
+  let newState;
+  if (val === 100) {
+    // 100% = confirmed Het (or Visual if you already have het)
+    newState = 'Het';
+  } else if (val >= 80) {
+    newState = '66% Poss Het';
+  } else if (val >= 25) {
+    newState = '50% Poss Het';
+  } else if (val === 0) {
+    newState = 'Normal';
+  } else {
+    newState = '50% Poss Het';
+  }
+
+  // Highlight the matching radio
+  const wrap = document.getElementById(`${rowId}-states`);
+  if (!wrap) return;
+  wrap.querySelectorAll('input[type="radio"]').forEach(r => {
+    if (r.value === newState) {
+      r.checked = true;
+      parentGenes[parent][id] = { gene: geneName, state: newState };
+    }
+  });
+
+  // Visual feedback on input border
+  const pctInput = document.getElementById(`${rowId}-pct`);
+  if (pctInput) {
+    pctInput.style.borderColor = val === 100 ? 'var(--accent)' : 'var(--border)';
+  }
+}
+
+// Sync: radio → percent input
+function syncPctFromRadio(rowId, state) {
+  const pctInput = document.getElementById(`${rowId}-pct`);
+  if (!pctInput) return;
+  const map = { 'Visual': '', 'Het': '100', '66% Poss Het': '66', '50% Poss Het': '50', 'Normal': '0', 'Unknown': '' };
+  pctInput.value = map[state] ?? '';
 }
 
 function renderStates(row, geneName, parent, id, prefillState) {
@@ -695,6 +812,9 @@ function renderStates(row, geneName, parent, id, prefillState) {
   const states = gene.states;
   const defaultState = prefillState || states[0];
 
+  const isPossHetGene = gene.category === 'recessive';
+  const pctRow = document.getElementById(`${rowId}-pctrow`);
+
   states.forEach((s, i) => {
     const rid = `${rowId}-s${i}`;
     const inp = document.createElement('input');
@@ -705,6 +825,8 @@ function renderStates(row, geneName, parent, id, prefillState) {
     inp.checked = s === defaultState;
     inp.onchange = () => {
       parentGenes[parent][id] = { gene: geneName, state: s };
+      syncPctFromRadio(rowId, s);
+      checkWeroLogic(parent);
     };
     const lbl = document.createElement('label');
     lbl.htmlFor = rid;
@@ -712,6 +834,12 @@ function renderStates(row, geneName, parent, id, prefillState) {
     wrap.appendChild(inp);
     wrap.appendChild(lbl);
   });
+
+  // Show/hide percent row
+  if (pctRow) {
+    pctRow.style.display = isPossHetGene ? 'flex' : 'none';
+    syncPctFromRadio(rowId, defaultState);
+  }
 
   parentGenes[parent][id] = { gene: geneName, state: defaultState };
 }
