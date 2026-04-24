@@ -631,7 +631,12 @@ const GENES = {
     category: 'nonmendelian',
     states: ['None', 'Visual'],
     short: 'Blue'
-  }
+  },
+  Axanthic: {
+    category: 'recessive',
+    states: ['Visual','Het','66% Poss Het','50% Poss Het','Normal','Unknown'],
+    short: 'Axanthic'
+  },
 };
 
 // UI LOGIC FOR COLOR CALCULATION
@@ -1251,8 +1256,7 @@ function renderResults(results, warnings, infos) {
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 </script>
-<script src="data.js"></script>
-<script src="app.js"></script>
+
 </body>
 </html>
 
