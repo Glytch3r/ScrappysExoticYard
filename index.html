@@ -10,22 +10,22 @@
 <body>
 
 <header>
-  <div class="logo-mark">Breeding</div>
+  <div class="logo-mark">BREED</div>
   <div class="header-main">
-    <h1>Lineage <span>Tool</span></h1>
-    <div class="header-sub">Bearded Dragon Breeding — Phenotype & Probability Engine</div>
+    <h1>Breeding <span>Tool</span></h1>
+    <div class="header-sub">genetic calculator for ball pythons</div>
   </div>
-  <div class="header-badge">v1.0 · Beta</div>
+  <div class="header-badge">v2.0</div>
 </header>
 
 <div class="app-container">
 
   <div class="parents-grid">
     <!-- SIRE -->
-    <div class="panel" id="sire-panel">
+    <div class="panel">
       <div class="panel-header">
-        <div class="sex-badge male">♂</div>
         <div class="panel-title">Sire</div>
+        <div class="sex-badge male">♂</div>
       </div>
       <div class="panel-body">
         <div class="pedigree-row">
@@ -42,19 +42,17 @@
             <input type="text" id="sire-gm" placeholder="Mother's name">
           </div>
         </div>
-        <div class="section-label">Genetic Profile</div>
+        <div class="section-label">GENES</div>
         <div class="gene-list" id="sire-genes"></div>
-        <div class="empty-genes" id="sire-empty">No genes added yet.</div>
-        <button class="btn-add-gene" onclick="addGene('sire')">+ Add Gene</button>
-        <div class="auto-notice" id="sire-auto-notice"></div>
+        <button class="btn-add" onclick="addGene('sire')">+ Add Gene</button>
       </div>
     </div>
 
     <!-- DAM -->
-    <div class="panel" id="dam-panel">
+    <div class="panel">
       <div class="panel-header">
-        <div class="sex-badge female">♀</div>
         <div class="panel-title">Dam</div>
+        <div class="sex-badge female">♀</div>
       </div>
       <div class="panel-body">
         <div class="pedigree-row">
@@ -71,33 +69,35 @@
             <input type="text" id="dam-gm" placeholder="Mother's name">
           </div>
         </div>
-        <div class="section-label">Genetic Profile</div>
+        <div class="section-label">GENES</div>
         <div class="gene-list" id="dam-genes"></div>
-        <div class="empty-genes" id="dam-empty">No genes added yet.</div>
-        <button class="btn-add-gene" onclick="addGene('dam')">+ Add Gene</button>
-        <div class="auto-notice" id="dam-auto-notice"></div>
+        <button class="btn-add" onclick="addGene('dam')">+ Add Gene</button>
       </div>
     </div>
   </div>
 
-  <div class="calculate-section">
-    <button class="btn-calculate" onclick="calculate()">Calculate Clutch Genetics</button>
+  <div style="display: flex; gap: 12px; margin-bottom: 32px;">
+    <button class="btn-primary" onclick="calculate()">Calculate Cross</button>
+    <button class="btn-secondary" onclick="resetForm()">Reset Form</button>
   </div>
 
-  <div id="results-section">
+  <!-- RESULTS -->
+  <div id="results-section" class="results-section">
     <div class="results-header">
-      <div class="results-title">Clutch Results</div>
-      <div class="results-meta" id="results-meta"></div>
+      <h2>Results</h2>
+      <div id="results-meta" class="results-meta"></div>
     </div>
-    <div id="warnings-container"></div>
-    <div id="info-container"></div>
+
+    <div id="warnings-container" style="margin-bottom: 16px;"></div>
+    <div id="info-container" style="margin-bottom: 16px;"></div>
+
     <div class="results-table-wrap">
-      <table>
+      <table class="results-table">
         <thead>
           <tr>
             <th>Phenotype</th>
             <th>Genotype</th>
-            <th class="prob-bar-cell">Probability</th>
+            <th>Probability</th>
           </tr>
         </thead>
         <tbody id="results-body"></tbody>

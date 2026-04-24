@@ -1,84 +1,44 @@
-let geneCounters = { sire: 0, dam: 0 };
-const parentGenes = { sire: {}, dam: {} };
+let parentGenes = { sire: {}, dam: {} };
+let geneIdCounter = { sire: 0, dam: 0 };
 
-function getUsedGenes(parent) {
-  return Object.values(parentGenes[parent]).map(g => g.gene);
+function addGene(parent) {
+  const id = geneIdCounter[parent]++;
+  const container = document.getElementById(`${parent}-genes`);
+  
+  const geneSelect = Object.keys(GENES).sort();
+  const geneRow = document.createElement('div');
+  geneRow.className = 'gene-row';
+  geneRow.id = `${parent}-gene-row-${id}`;
+  
+  geneRow.innerHTML = `
+    <select id="${parent}-gene-${id}-select" class="gene-select">
+      <option value="">-- Select Gene --</option>
+      ${geneSelect.map(g => `<option value="${g}">${g}</option>`).join('')}
+    </select>
+    <div class="state-radios" id="${parent}-gene-${id}-states"></div>
+    <label class="proven-check">
+      <input type="checkbox" id="${parent}-gene-${id}-proven">
+      <span>Proven</span>
+    </label>
+    <button class="btn-remove" onclick="removeGene('${parent}', ${id})">Remove</button>
+  `;
+  
+  container.appendChild(geneRow);
+  
+  const select = geneRow.querySelector('select');
+  select.addEventListener('change', (e) => updateGeneStates(parent, id, e.target.value));
 }
 
-function addGene(parent, prefillGene, prefillState) {
-  const list = document.getElementById(`${parent}-genes`);
-  const empty = document.getElementById(`${parent}-empty`);
-
-  const used = getUsedGenes(parent);
-  const available = Object.keys(GENES).filter(g => !used.includes(g));
-  if (available.length === 0) return;
-
-  const geneToAdd = prefillGene && available.includes(prefillGene) ? prefillGene : available[0];
-
-  const id = ++geneCounters[parent];
-  const rowId = `${parent}-gene-${id}`;
-
-  const row = document.createElement('div');
-  row.className = 'gene-row';
-  row.id = rowId;
-
-  const sel = document.createElement('select');
-  refreshGeneSelect(sel, parent, geneToAdd);
-  sel.onchange = () => {
-    const usedNow = getUsedGenes(parent);
-    const oldGene = parentGenes[parent][id]?.gene;
-    const newGene = sel.value;
-    if (usedNow.includes(newGene) && newGene !== oldGene) {
-      sel.value = oldGene;
-      return;
-    }
-    renderStates(row, sel.value, parent, id);
-    refreshAllGeneSelects(parent);
-    checkWeroLogic(parent);
-  };
-  row.appendChild(sel);
-
-  const stateCol = document.createElement('div');
-  stateCol.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
-
-  const stateWrap = document.createElement('div');
-  stateWrap.className = 'state-radios';
-  stateWrap.id = `${rowId}-states`;
-  stateCol.appendChild(stateWrap);
-
-  const percentDiv = document.createElement('div');
-  percentDiv.style.cssText = 'font-size:9px;color:var(--text-muted);margin-top:2px;';
-  percentDiv.id = `${rowId}-percent`;
-  stateCol.appendChild(percentDiv);
-
-  row.appendChild(stateCol);
-
-  const btRemove = document.createElement('button');
-  btRemove.className = 'btn-remove';
-  btRemove.textContent = '✕';
-  btRemove.onclick = (e) => {
-    e.preventDefault();
-    row.remove();
-    delete parentGenes[parent][id];
-    refreshAllGeneSelects(parent);
-    updateEmptyMessage(parent);
-  };
-  row.appendChild(btRemove);
-
-  list.appendChild(row);
-  renderStates(row, geneToAdd, parent, id);
-  refreshAllGeneSelects(parent);
-  updateEmptyMessage(parent);
-}
-
-function renderStates(row, geneName, parent, id) {
+function updateGeneStates(parent, id, geneName) {
+  const statesDiv = document.getElementById(`${parent}-gene-${id}-states`);
+  statesDiv.innerHTML = '';
+  
+  if (!geneName || !GENES[geneName]) return;
+  
   const gene = GENES[geneName];
-  if (!gene) return;
-
-  const stateWrap = row.querySelector(`#${parent}-gene-${id}-states`);
-  stateWrap.innerHTML = '';
-
-  gene.states.forEach((state, idx) => {
+  const states = gene.states || ['Normal', 'Heterozygous', 'Visual'];
+  
+  states.forEach((state, idx) => {
     const radioId = `${parent}-gene-${id}-state-${idx}`;
     const input = document.createElement('input');
     input.type = 'radio';
@@ -87,141 +47,62 @@ function renderStates(row, geneName, parent, id) {
     input.value = state;
     input.onchange = () => {
       parentGenes[parent][id] = { gene: geneName, state: state };
-      updatePercent(row, gene, parent, id);
     };
-    stateWrap.appendChild(input);
-
+    
     const label = document.createElement('label');
     label.htmlFor = radioId;
     label.textContent = state;
-    stateWrap.appendChild(label);
+    
+    statesDiv.appendChild(input);
+    statesDiv.appendChild(label);
   });
-
-  if (gene.states.length > 0) {
-    document.getElementById(`${parent}-gene-${id}-state-0`).checked = true;
-    parentGenes[parent][id] = { gene: geneName, state: gene.states[0] };
-    updatePercent(row, gene, parent, id);
+  
+  if (states.length > 0) {
+    document.querySelector(`#${parent}-gene-${id}-state-0`).checked = true;
+    parentGenes[parent][id] = { gene: geneName, state: states[0] };
   }
 }
 
-function updatePercent(row, gene, parent, id) {
-  const state = parentGenes[parent][id]?.state;
-  let prob = 0;
-
-  if (gene.category === 'recessive') {
-    switch (state) {
-      case 'Visual': prob = 100; break;
-      case 'Het': prob = 50; break;
-      case '66% Poss Het': prob = 66; break;
-      case '50% Poss Het': prob = 50; break;
-      default: prob = 0;
-    }
-  } else if (gene.category === 'dominant') {
-    prob = state === 'Visual' ? 50 : 0;
-  } else if (gene.category === 'incdominant') {
-    switch (state) {
-      case 'Visual (Leatherback)': prob = 50; break;
-      case 'Super (Silkback)': prob = 25; break;
-      default: prob = 0;
-    }
-  } else if (gene.category === 'lineage') {
-    prob = state === 'Visual' ? 50 : 0;
-  } else if (gene.category === 'nonmendelian') {
-    prob = state !== 'None' ? 50 : 0;
-  }
-
-  const percentDiv = row.querySelector(`#sire-gene-${id}-percent`) || row.querySelector(`#dam-gene-${id}-percent`);
-  if (percentDiv) {
-    percentDiv.textContent = `~${prob}% in offspring`;
-  }
+function removeGene(parent, id) {
+  const row = document.getElementById(`${parent}-gene-row-${id}`);
+  if (row) row.remove();
+  delete parentGenes[parent][id];
 }
 
-function refreshGeneSelect(sel, parent, geneToAdd) {
-  const used = getUsedGenes(parent);
-  sel.innerHTML = '';
-
-  Object.keys(GENES).forEach(g => {
-    if (!used.includes(g) || g === geneToAdd) {
-      const opt = document.createElement('option');
-      opt.value = g;
-      opt.textContent = g;
-      if (g === geneToAdd) opt.selected = true;
-      sel.appendChild(opt);
-    }
-  });
+function resetForm() {
+  document.getElementById('sire-name').value = '';
+  document.getElementById('sire-gf').value = '';
+  document.getElementById('sire-gm').value = '';
+  document.getElementById('dam-name').value = '';
+  document.getElementById('dam-gf').value = '';
+  document.getElementById('dam-gm').value = '';
+  
+  document.getElementById('sire-genes').innerHTML = '';
+  document.getElementById('dam-genes').innerHTML = '';
+  
+  parentGenes = { sire: {}, dam: {} };
+  geneIdCounter = { sire: 0, dam: 0 };
+  
+  document.getElementById('results-section').classList.remove('visible');
 }
 
-function refreshAllGeneSelects(parent) {
-  const rows = document.querySelectorAll(`#${parent}-genes .gene-row`);
-  rows.forEach(row => {
-    const sel = row.querySelector('select');
-    if (sel) {
-      const currentGene = sel.value;
-      refreshGeneSelect(sel, parent, currentGene);
-    }
-  });
-}
-
-function updateEmptyMessage(parent) {
-  const empty = document.getElementById(`${parent}-empty`);
-  const list = document.getElementById(`${parent}-genes`);
-  if (list.children.length === 0) {
-    empty.style.display = 'block';
-  } else {
-    empty.style.display = 'none';
-  }
-}
-
-function checkWeroLogic(parent) {
-  const genes = parentGenes[parent];
-  const witblits = Object.values(genes).find(g => g.gene === 'Witblits' && g.state === 'Visual');
-  const zero = Object.values(genes).find(g => g.gene === 'Zero' && g.state === 'Visual');
-
-  const notice = document.getElementById(`${parent}-auto-notice`);
-  if (witblits && zero) {
-    notice.textContent = '⚡ Wero parent detected! Both Witblits and Zero are Visual.';
-    notice.classList.add('visible');
-  } else {
-    notice.classList.remove('visible');
-  }
-}
-
-function stateToProb(state, category) {
-  if (category === 'recessive') {
-    switch (state) {
-      case 'Visual': return { visual: 1, het: 0, normal: 0 };
-      case 'Het': return { visual: 0, het: 1, normal: 0 };
-      case '66% Poss Het': return { visual: 0.66, het: 0, normal: 0.34 };
-      case '50% Poss Het': return { visual: 0.5, het: 0, normal: 0.5 };
-      case 'Unknown': return { visual: 0.25, het: 0.5, normal: 0.25 };
-      default: return { visual: 0, het: 0, normal: 1 };
-    }
-  }
+function stateToProb(state, proven) {
+  if (state === 'Normal') return { visual: 0, het: 0, normal: 1 };
+  if (state === 'Heterozygous') return { visual: 0, het: 1, normal: 0 };
+  if (state === 'Visual') return { visual: 1, het: 0, normal: 0 };
+  if (state === 'Unknown') return { visual: 0.33, het: 0.33, normal: 0.34 };
   return { visual: 0, het: 0, normal: 1 };
 }
 
-function crossRecessive(sP, dP) {
-  const visual = (sP.visual * dP.visual) + (sP.visual * dP.het * 0.5) + (sP.het * dP.visual * 0.5) + (sP.het * dP.het * 0.25);
-  const het = (sP.het * dP.normal) + (sP.visual * dP.normal * 0) + (sP.normal * dP.het) + (sP.het * dP.visual * 0.5) + (sP.het * dP.het * 0.5) + (sP.normal * dP.visual * 0);
-  const normal = (sP.normal * dP.normal) + (sP.het * dP.normal * 0) + (sP.normal * dP.het * 0) + (sP.het * dP.het * 0.25);
-
+function crossRecessive(sireProb, damProb) {
+  const sV = sireProb.visual, sH = sireProb.het, sN = sireProb.normal;
+  const dV = damProb.visual, dH = damProb.het, dN = damProb.normal;
+  
+  const visual = (sV * dV) + (sV * dH) * 0.5 + (sH * dV) * 0.5 + (sH * dH) * 0.25;
+  const het = (sH * dN) + (sV * dN) * 0 + (sN * dH) + (sH * dV) * 0.5 + (sH * dH) * 0.5 + (sN * dV) * 0;
+  const normal = (sN * dN) + (sH * dN) * 0 + (sN * dH) * 0 + (sH * dH) * 0.25;
+  
   return { visual, het, normal };
-}
-
-function crossIncDominant(sireState, damState) {
-  const outcomes = {};
-
-  if (sireState === 'Normal' && damState === 'Normal') {
-    outcomes.normal = 1;
-  } else if (sireState === 'Super (Silkback)' || damState === 'Super (Silkback)') {
-    outcomes.visual = 0.5;
-    outcomes.super = 0.5;
-  } else {
-    outcomes.visual = 0.5;
-    outcomes.normal = 0.5;
-  }
-
-  return outcomes;
 }
 
 function crossDominant(sireState, damState) {
@@ -234,11 +115,11 @@ function crossDominant(sireState, damState) {
 function combineGeneResults(allGeneResults) {
   let combined = [{}];
   let combinedProbs = [1];
-
+  
   for (const { geneName, outcomes } of allGeneResults) {
     const newCombined = [];
     const newProbs = [];
-
+    
     for (let i = 0; i < combined.length; i++) {
       for (const [state, prob] of Object.entries(outcomes)) {
         const newEntry = { ...combined[i], [geneName]: state };
@@ -249,7 +130,7 @@ function combineGeneResults(allGeneResults) {
     combined = newCombined;
     combinedProbs = newProbs;
   }
-
+  
   return combined.map((combo, i) => ({ combo, prob: combinedProbs[i] }));
 }
 
@@ -263,20 +144,11 @@ function formatPhenotype(combo) {
 
     if (g.category === 'recessive') {
       if (state === 'Visual') { visuals.push(gene); genotypeparts.push(`hom ${g.short}`); }
-      else if (state === 'Het') { hets.push(gene); genotypeparts.push(`het ${g.short}`); }
-      else if (state === '66% Poss Het' || state === '50% Poss Het') { possHets.push(gene); genotypeparts.push(`poss het ${g.short}`); }
-      else { genotypeparts.push(`nrm ${g.short}`); }
-    } else if (g.category === 'incdominant') {
-      if (state === 'Super (Silkback)') { supers.push(gene); genotypeparts.push(`${g.short}/Silkback`); }
-      else if (state === 'Visual (Leatherback)') { visuals.push(`Leatherback`); genotypeparts.push(`het ${g.short}`); }
+      else if (state === 'Heterozygous') { hets.push(gene); genotypeparts.push(`het ${g.short}`); }
       else { genotypeparts.push(`nrm ${g.short}`); }
     } else if (g.category === 'dominant') {
       if (state === 'Visual') { visuals.push(gene); genotypeparts.push(`${g.short} dominant`); }
       else { genotypeparts.push(`nrm ${g.short}`); }
-    } else if (g.category === 'nonmendelian') {
-      if (state !== 'None') { visuals.push(`${state.split('(')[0].trim()}`); genotypeparts.push(state); }
-    } else if (g.category === 'lineage') {
-      if (state === 'Visual') { visuals.push(gene); genotypeparts.push(`${g.short} lineage`); }
     }
   }
 
@@ -320,20 +192,6 @@ function calculate() {
     }
   });
 
-  const sireHasLB = sireGenes.find(g => g.gene === 'Leatherback');
-  const damHasLB = damGenes.find(g => g.gene === 'Leatherback');
-  if (sireHasLB?.state === 'Super (Silkback)' || damHasLB?.state === 'Super (Silkback)') {
-    infos.push('ℹ Silkback parent detected. Note: Silkback × Silkback breeding is generally discouraged due to health concerns in offspring.');
-  }
-
-  const sireWitblits = sireGenes.find(g => g.gene === 'Witblits' && g.state === 'Visual');
-  const sireZero = sireGenes.find(g => g.gene === 'Zero' && g.state === 'Visual');
-  const damWitblits = damGenes.find(g => g.gene === 'Witblits' && g.state === 'Visual');
-  const damZero = damGenes.find(g => g.gene === 'Zero' && g.state === 'Visual');
-  if ((sireWitblits && sireZero) || (damWitblits && damZero)) {
-    infos.push('ℹ Wero parent present (Visual Witblits + Visual Zero). Wero offspring will appear in results.');
-  }
-
   for (const geneName of allGeneNames) {
     const gene = GENES[geneName];
     const sireEntry = sireGenes.find(g => g.gene === geneName);
@@ -342,29 +200,17 @@ function calculate() {
     const sireState = sireEntry?.state || 'Normal';
     const damState = damEntry?.state || 'Normal';
 
+    const sireProven = document.getElementById(`sire-gene-${Object.keys(parentGenes.sire).find(k => parentGenes.sire[k].gene === geneName)}-proven`)?.checked || false;
+    const damProven = document.getElementById(`dam-gene-${Object.keys(parentGenes.dam).find(k => parentGenes.dam[k].gene === geneName)}-proven`)?.checked || false;
+
     let outcomes = {};
 
     if (gene.category === 'recessive') {
-      const sP = stateToProb(sireState, 'recessive');
-      const dP = stateToProb(damState, 'recessive');
+      const sP = stateToProb(sireState, sireProven);
+      const dP = stateToProb(damState, damProven);
       outcomes = crossRecessive(sP, dP);
-    } else if (gene.category === 'incdominant') {
-      outcomes = crossIncDominant(sireState, damState);
     } else if (gene.category === 'dominant') {
       outcomes = crossDominant(sireState, damState);
-    } else if (gene.category === 'nonmendelian') {
-      if ((sireState.includes('High') || sireState === 'Visual') && (damState.includes('High') || damState === 'Visual')) {
-        outcomes = { 'High (Deep Red)': 0.5, 'Low (Pastel)': 0.5 };
-      } else if (sireState === 'None' && damState === 'None') {
-        outcomes = { 'None': 1 };
-      } else if (sireState.includes('High') || sireState === 'Visual' || damState.includes('High') || damState === 'Visual') {
-        outcomes = { 'High (Deep Red)': 0.25, 'Low (Pastel)': 0.5, 'None': 0.25 };
-      } else {
-        outcomes = { 'Low (Pastel)': 0.5, 'None': 0.5 };
-      }
-    } else if (gene.category === 'lineage') {
-      if (sireState === 'Visual' || damState === 'Visual') outcomes = { visual: 0.5, normal: 0.5 };
-      else outcomes = { normal: 1 };
     }
 
     const total = Object.values(outcomes).reduce((a, b) => a + b, 0);
