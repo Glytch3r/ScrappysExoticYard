@@ -861,6 +861,11 @@ const GENES = {
     states: ['Visual','Normal'],
     short: 'Dunner'
   },
+  Tiger: {
+    category: 'dominant',
+    states: ['Visual','Normal'],
+    short: 'Tiger'
+  },
   'German Giant': {
     category: 'lineage',
     states: ['Visual','Normal'],
@@ -1403,9 +1408,16 @@ function formatPhenotype(combo) {
       if (state === 'visual') { visuals.push(gene); genotypeparts.push(`${g.short} lineage`); }
     }
   }
+  const zeroVisual = combo['Zero'] === 'visual';
+  const witblitsVisual = combo['Witblits'] === 'visual';
+  const isWero = zeroVisual && witblitsVisual;
   let phenotype = '';
   const parts = [];
   if (supers.length) parts.push(...supers.map(s => `Super ${s}`));
+  if (isWero) {
+    parts.push('Wero');
+    visuals = visuals.filter(v => v !== 'Zero' && v !== 'Witblits');
+  }
   if (visuals.length) parts.push(...visuals);
   if (hets.length) parts.push(...hets.map(h => `Het ${h}`));
   if (possHets.length) parts.push(...possHets.map(h => `66% Poss Het ${h}`));
@@ -1415,8 +1427,9 @@ function formatPhenotype(combo) {
     phenotype,
     genotype: genotypeparts.join(' / ') || 'nrm',
     hasSuper: supers.length > 0,
-    hasVisual: visuals.length > 0,
-    hasHet: hets.length > 0
+    hasVisual: visuals.length > 0 || isWero,
+    hasHet: hets.length > 0,
+    isWero: isWero
   };
 }
 function renderResults(results, warnings, infos) {
@@ -1449,8 +1462,9 @@ function renderResults(results, warnings, infos) {
     const tr = document.createElement('tr');
     const tdPheno = document.createElement('td');
     let tagHtml = '';
-    if (r.hasSuper) tagHtml += `<span class="tag tag-super">Super</span> `;
-    if (r.hasVisual && !r.hasSuper) tagHtml += `<span class="tag tag-visual">Visual</span> `;
+    if (r.isWero) tagHtml += `<span class="tag tag-super">Wero</span> `;
+    else if (r.hasSuper) tagHtml += `<span class="tag tag-super">Super</span> `;
+    if (r.hasVisual && !r.hasSuper && !r.isWero) tagHtml += `<span class="tag tag-visual">Visual</span> `;
     if (r.hasHet) tagHtml += `<span class="tag tag-het">Het</span> `;
     tdPheno.innerHTML = `<div class="phenotype-name">${tagHtml}${r.phenotype}</div>`;
     tr.appendChild(tdPheno);
