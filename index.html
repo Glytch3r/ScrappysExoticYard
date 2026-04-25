@@ -4,9 +4,165 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Breeding Tool</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@600;700;800&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
+    --bg: #f5f5f5;
+    --surface: #ffffff;
+    --surface2: #f9f9f9;
+    --border: #e0e0e0;
+    --accent: #E67E22;
+    --accent2: #d46d0a;
+    --accent-glow: rgba(230,126,34,0.12);
+    --text: #2C3E50;
+    --text-dim: #5a6c7d;
+    --text-muted: #8a9aaa;
+    --red: #e74c3c;
+    --green: #27AE60;
+    --tag-bg: #f0f5f9;
+    --radius: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(230,126,34,0.06) 0%, transparent 70%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23E67E22' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    position: relative;
+    background: var(--surface);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .logo-mark {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    line-height: 1;
+    opacity: 0.9;
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+  }
+  .header-main h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .header-main h1 span { color: var(--accent); }
+  .header-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .header-badge {
+    margin-left: auto;
+    background: var(--accent-glow);
+    border: 1px solid rgba(230,126,34,0.3);
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  /* NAVIGATION */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+  }
+  nav a {
+    flex: 1;
+    text-align: center;
+    padding: 14px 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    color: var(--text-dim);
+    border-right: 1px solid var(--border);
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  nav a:last-child {
+    border-right: none;
+  }
+  nav a:hover {
+    background: var(--accent-glow);
+    color: var(--accent);
+  }
+  nav a.active {
+    background: var(--accent);
+    color: #ffffff;
+  }
+  /* COLOR TOGGLE */
+  .color-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 20px;
+    border-left: 1px solid var(--border);
+    margin-left: 20px;
+  }
+  .toggle-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+  }
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s;
+    border: 1px solid var(--border);
+  }
+  .toggle-switch.active {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .toggle-switch::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+    transition: left 0.3s;
+  }
+  .toggle-switch.active::before {
+    left: 22px;
+  }
+  /* DARK MODE OVERRIDES */
+  body.dark-mode {
     --bg: #0f0e0c;
     --surface: #1a1814;
     --surface2: #242018;
@@ -17,69 +173,7 @@
     --text: #e8e0d0;
     --text-dim: #8a7f6e;
     --text-muted: #4a4438;
-    --red: #c45c3a;
-    --green: #6a9e5c;
     --tag-bg: #1e1c16;
-    --radius: 6px;
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    min-height: 100vh;
-    background-image:
-      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(180,130,40,0.08) 0%, transparent 70%),
-      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4a843' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  }
-  /* HEADER */
-  header {
-    border-bottom: 1px solid var(--border);
-    padding: 28px 40px 24px;
-    display: flex;
-    align-items: flex-end;
-    gap: 24px;
-    position: relative;
-  }
-  .logo-mark {
-    font-family: 'Syne', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--accent);
-    line-height: 1;
-    writing-mode: vertical-lr;
-    transform: rotate(180deg);
-    opacity: 0.7;
-  }
-  .header-main h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: 32px;
-    font-weight: 800;
-    color: var(--text);
-    letter-spacing: -0.02em;
-    line-height: 1;
-  }
-  .header-main h1 span { color: var(--accent); }
-  .header-sub {
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-top: 6px;
-  }
-  .header-badge {
-    margin-left: auto;
-    background: var(--tag-bg);
-    border: 1px solid var(--border);
-    padding: 6px 14px;
-    border-radius: 3px;
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-dim);
   }
   /* LAYOUT */
   .app-container {
@@ -126,7 +220,7 @@
     background: var(--surface2);
     border: 1px solid var(--border);
     color: var(--text-dim);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Roboto', sans-serif;
     font-size: 11px;
     letter-spacing: 0.08em;
     padding: 8px 10px;
@@ -175,7 +269,7 @@
     gap: 10px;
   }
   .panel-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     font-size: 14px;
     letter-spacing: 0.05em;
@@ -213,7 +307,7 @@
     border-radius: 4px;
     padding: 7px 10px;
     color: var(--text);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Roboto', sans-serif;
     font-size: 12px;
     outline: none;
     transition: border-color 0.2s;
@@ -248,7 +342,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     color: var(--text);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Roboto', sans-serif;
     font-size: 12px;
     padding: 5px 8px;
     border-radius: 4px;
@@ -309,7 +403,7 @@
     background: none;
     border: 1px dashed var(--border);
     color: var(--text-dim);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Roboto', sans-serif;
     font-size: 11px;
     letter-spacing: 0.1em;
     padding: 8px 14px;
@@ -333,7 +427,7 @@
   .btn-calculate {
     background: var(--accent);
     color: var(--bg);
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     font-size: 15px;
     letter-spacing: 0.12em;
@@ -363,7 +457,7 @@
   .btn-secondary {
     background: var(--surface2);
     color: var(--text-dim);
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     font-size: 13px;
     letter-spacing: 0.1em;
@@ -394,7 +488,7 @@
     margin-bottom: 20px;
   }
   .results-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 20px;
     font-weight: 800;
     letter-spacing: -0.01em;
@@ -459,7 +553,7 @@
     text-align: right;
   }
   .phenotype-name {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-weight: 600;
     font-size: 13px;
     margin-bottom: 3px;
@@ -538,11 +632,19 @@
     <h1>Linage <span>Tool</span></h1>
     <div class="header-sub">Bearded Dragon — Phenotype & Probability Engine</div>
   </div>
-  <div class="header-badge">v3.0 · Beta</div>
+  <div class="header-badge">v4.0 · Beta</div>
 </header>
+<nav>
+  <a href="index.html" class="active">Breeding Tool</a>
+  <a href="terminologies.html">Terminologies</a>
+ <!--  <a href="guides.html">Guides</a> -->
+  <div class="color-toggle" id="color-toggle-container">
+    <span class="toggle-label">Dark Mode</span>
+    <div class="toggle-switch" id="color-toggle" onclick="toggleColorScheme()"></div>
+  </div>
+</nav>
 <div class="app-container">
 <div class="parents-grid">
-
     <!-- SIRE COLUMN -->
     <div class="parent-column">
       <!-- SIRE -->
@@ -572,7 +674,6 @@
           </div>
         </div>
       </div>
-
       <!-- SIRE'S GRANDPARENTS -->
       <div class="grandparents-area" id="sire-gp-area">
         <div class="grandparent-panel-wrap" id="sgf-wrap">
@@ -617,7 +718,6 @@
         </div>
       </div>
     </div><!-- end sire column -->
-
     <!-- DAM COLUMN -->
     <div class="parent-column">
       <!-- DAM -->
@@ -647,7 +747,6 @@
           </div>
         </div>
       </div>
-
       <!-- DAM'S GRANDPARENTS -->
       <div class="grandparents-area" id="dam-gp-area">
         <div class="grandparent-panel-wrap" id="dgf-wrap">
@@ -692,7 +791,6 @@
         </div>
       </div>
     </div><!-- end dam column -->
-
   </div><!-- end parents-grid -->
   <div class="calculate-section">
     <button class="btn-secondary btn-clear" onclick="clearAll()">Clear All</button>
@@ -700,7 +798,9 @@
     <input type="file" id="load-input" accept=".json" style="display:none" onchange="loadData(event)">
     <button class="btn-calculate" id="btn-calculate" onclick="calculate()" disabled>Calculate Clutch Genetics</button>
     <button class="btn-secondary" onclick="saveData()">Save</button>
-    <button class="btn-secondary btn-export" id="btn-export-png" onclick="exportPNG()" style="display:none">⬇ Export PNG</button>
+    <!-- <button class="btn-secondary btn-export" id="btn-export-png" onclick="exportPNG()" style="display:none">⬇ Export PNG</button> -->
+    <button class="btn-secondary btn-export" id="btn-export-png" onclick="exportPNG()" >⬇ Export PNG</button>
+
     <div class="calc-hint" id="calc-hint">Add at least one gene to Sire and Dam to calculate</div>
   </div>
   <div id="results-section">
@@ -787,14 +887,11 @@ const GENES = {
     short: 'Axanthic'
   },
 };
-
 let geneCounters = { sgf: 0, sgm: 0, dgf: 0, dgm: 0, sire: 0, dam: 0 };
 const parentGenes = { sgf: {}, sgm: {}, dgf: {}, dgm: {}, sire: {}, dam: {} };
-
 function getUsedGenes(parent) {
   return Object.values(parentGenes[parent]).map(g => g.gene);
 }
-
 function addGene(parent, prefillGene, prefillState) {
   const list = document.getElementById(`${parent}-genes`);
   const empty = document.getElementById(`${parent}-empty`);
@@ -872,7 +969,6 @@ function addGene(parent, prefillGene, prefillState) {
   refreshAllGeneSelects(parent);
   updateCalculateBtn();
 }
-
 function refreshGeneSelect(sel, parent, currentGene) {
   const used = getUsedGenes(parent);
   sel.innerHTML = Object.keys(GENES).map(g => {
@@ -880,7 +976,6 @@ function refreshGeneSelect(sel, parent, currentGene) {
     return `<option value="${g}" ${g === currentGene ? 'selected' : ''} ${disabled ? 'disabled style="color:#4a4438"' : ''}>${g}${disabled ? ' ✓' : ''}</option>`;
   }).join('');
 }
-
 function refreshAllGeneSelects(parent) {
   const list = document.getElementById(`${parent}-genes`);
   if (!list) return;
@@ -893,11 +988,9 @@ function refreshAllGeneSelects(parent) {
     if (currentGene) refreshGeneSelect(sel, parent, currentGene);
   });
 }
-
 function getDefaultState(geneName) {
   return GENES[geneName].states[0];
 }
-
 function syncRadioFromPct(rowId, parent, id, val, geneName) {
   if (isNaN(val)) return;
   val = Math.max(0, Math.min(100, val));
@@ -926,14 +1019,12 @@ function syncRadioFromPct(rowId, parent, id, val, geneName) {
     pctInput.style.borderColor = val === 100 ? 'var(--accent)' : 'var(--border)';
   }
 }
-
 function syncPctFromRadio(rowId, state) {
   const pctInput = document.getElementById(`${rowId}-pct`);
   if (!pctInput) return;
   const map = { 'Visual': '', 'Het': '100', '66% Poss Het': '66', '50% Poss Het': '50', 'Normal': '0', 'Unknown': '' };
   pctInput.value = map[state] ?? '';
 }
-
 function renderStates(row, geneName, parent, id, prefillState) {
   const rowId = `${parent}-gene-${id}`;
   const wrap = document.getElementById(`${rowId}-states`);
@@ -968,7 +1059,6 @@ function renderStates(row, geneName, parent, id, prefillState) {
   }
   parentGenes[parent][id] = { gene: geneName, state: defaultState };
 }
-
 function stateToProb(state, proven) {
   if (proven) {
     if (state.includes('Poss') || state === '66% Poss Het' || state === '50% Poss Het') {
@@ -985,7 +1075,6 @@ function stateToProb(state, proven) {
     default: return { visual: 0, het: 0, normal: 1 };
   }
 }
-
 function crossRecessive(sireProb, damProb) {
   const sireAlleles = getRecAlleles(sireProb);
   const damAlleles  = getRecAlleles(damProb);
@@ -998,7 +1087,6 @@ function crossRecessive(sireProb, damProb) {
   }
   return results;
 }
-
 function getRecAlleles(prob) {
   let alleles = [];
   if (prob.visual === 1) { alleles.push(['V', 0.5], ['V', 0.5]); }
@@ -1012,13 +1100,11 @@ function getRecAlleles(prob) {
   }
   return alleles;
 }
-
 function getRecCombo(a1, a2) {
   if (a1 === 'V' && a2 === 'V') return 'visual';
   if ((a1 === 'V' && a2 === 'n') || (a1 === 'n' && a2 === 'V')) return 'het';
   return 'normal';
 }
-
 function crossIncDominant(sireState, damState) {
   const sireAlleles = getLBAlleles(sireState);
   const damAlleles  = getLBAlleles(damState);
@@ -1031,19 +1117,16 @@ function crossIncDominant(sireState, damState) {
   }
   return results;
 }
-
 function getLBAlleles(state) {
   if (state === 'Visual (Leatherback)') return [['lb', 0.5], ['n', 0.5]];
   if (state === 'Super (Silkback)') return [['lb', 0.5], ['lb', 0.5]];
   return [['n', 0.5], ['n', 0.5]];
 }
-
 function getLBCombo(a1, a2) {
   if (a1 === 'lb' && a2 === 'lb') return 'super';
   if ((a1 === 'lb' && a2 === 'n') || (a1 === 'n' && a2 === 'lb')) return 'visual';
   return 'normal';
 }
-
 function crossDominant(sireState, damState) {
   if (sireState === 'Visual' && damState === 'Visual') {
     return { visual: 0.75, normal: 0.25 };
@@ -1052,101 +1135,35 @@ function crossDominant(sireState, damState) {
   }
   return { visual: 0, normal: 1 };
 }
-
 function inheritGeneFromParents(gpfGene, gpmGene, geneName) {
   const gene = GENES[geneName];
   
   if (gene.category === 'recessive') {
     const gpfProb = stateToProb(gpfGene, false);
     const gpmProb = stateToProb(gpmGene, false);
-    return crossRecessive(gpfProb, gpmProb);
+    const result = crossRecessive(gpfProb, gpmProb);
+    return {
+      visual: result.visual || 0,
+      het: result.het || 0,
+      normal: result.normal || 0
+    };
   } else if (gene.category === 'incdominant') {
-    return crossIncDominant(gpfGene, gpmGene);
+    const result = crossIncDominant(gpfGene, gpmGene);
+    return {
+      visual: result.visual || 0,
+      super: result.super || 0,
+      normal: result.normal || 0
+    };
   } else if (gene.category === 'dominant') {
     return crossDominant(gpfGene, gpmGene);
   } else if (gene.category === 'nonmendelian' || gene.category === 'lineage') {
     if (gpfGene !== 'Normal' || gpmGene !== 'Normal') {
       return { visual: 0.5, normal: 0.5 };
     }
-    return { normal: 1 };
+    return { visual: 0, normal: 1 };
   }
-  return { normal: 1 };
+  return { visual: 0, normal: 1 };
 }
-
-function calculateParentState(gpfGene, gpmGene, parentDirectGene, geneName) {
-  if (!parentDirectGene) {
-    const inherited = inheritGeneFromParents(gpfGene, gpmGene, geneName);
-    const states = GENES[geneName].states;
-    if (inherited.visual > 0.5) return 'Visual';
-    if (inherited.het > 0.5) return 'Het';
-    if (inherited['66poss'] > 0.3) return '66% Poss Het';
-    if (inherited['50poss'] > 0) return '50% Poss Het';
-    return 'Normal';
-  }
-  return parentDirectGene;
-}
-
-function combineGeneResults(allGeneResults) {
-  let combined = [{}];
-  let combinedProbs = [1.0];
-  for (const { geneName, outcomes } of allGeneResults) {
-    const newCombined = [];
-    const newProbs = [];
-    for (let i = 0; i < combined.length; i++) {
-      for (const [state, prob] of Object.entries(outcomes)) {
-        if (prob <= 0) continue;
-        const newEntry = { ...combined[i], [geneName]: state };
-        newCombined.push(newEntry);
-        newProbs.push(combinedProbs[i] * prob);
-      }
-    }
-    combined = newCombined;
-    combinedProbs = newProbs;
-  }
-  return combined.map((combo, i) => ({ combo, prob: combinedProbs[i] }));
-}
-
-function formatPhenotype(combo) {
-  const visuals = [], hets = [], possHets = [], supers = [];
-  const genotypeparts = [];
-  for (const [gene, state] of Object.entries(combo)) {
-    const g = GENES[gene];
-    if (!g) continue;
-    if (g.category === 'recessive') {
-      if (state === 'visual') { visuals.push(gene); genotypeparts.push(`hom ${g.short}`); }
-      else if (state === 'het') { hets.push(gene); genotypeparts.push(`het ${g.short}`); }
-      else if (state === '66poss') { possHets.push(gene); genotypeparts.push(`66% poss het ${g.short}`); }
-      else { genotypeparts.push(`nrm ${g.short}`); }
-    } else if (g.category === 'incdominant') {
-      if (state === 'super') { supers.push(gene); genotypeparts.push(`${g.short}/Silkback`); }
-      else if (state === 'visual') { visuals.push(`Leatherback`); genotypeparts.push(`het ${g.short}`); }
-      else { genotypeparts.push(`nrm ${g.short}`); }
-    } else if (g.category === 'dominant') {
-      if (state === 'visual') { visuals.push(gene); genotypeparts.push(`${g.short} dominant`); }
-      else { genotypeparts.push(`nrm ${g.short}`); }
-    } else if (g.category === 'nonmendelian') {
-      if (state !== 'None') { visuals.push(`${state} ${gene}`); genotypeparts.push(state); }
-    } else if (g.category === 'lineage') {
-      if (state === 'visual') { visuals.push(gene); genotypeparts.push(`${g.short} lineage`); }
-    }
-  }
-  let phenotype = '';
-  const parts = [];
-  if (supers.length) parts.push(...supers.map(s => `Super ${s}`));
-  if (visuals.length) parts.push(...visuals);
-  if (hets.length) parts.push(...hets.map(h => `Het ${h}`));
-  if (possHets.length) parts.push(...possHets.map(h => `66% Poss Het ${h}`));
-  if (!parts.length) parts.push('Normal / Wildtype');
-  phenotype = parts.join(', ');
-  return {
-    phenotype,
-    genotype: genotypeparts.join(' / ') || 'nrm',
-    hasSuper: supers.length > 0,
-    hasVisual: visuals.length > 0,
-    hasHet: hets.length > 0
-  };
-}
-
 function updateCalculateBtn() {
   const sireHasGenes = Object.keys(parentGenes.sire).length > 0;
   const damHasGenes = Object.keys(parentGenes.dam).length > 0;
@@ -1155,7 +1172,6 @@ function updateCalculateBtn() {
   const exportBtn = document.getElementById('btn-export-png');
   const ready = sireHasGenes && damHasGenes;
   btn.disabled = !ready;
-  // Show export as long as at least one dragon has data
   const anyData = sireHasGenes || damHasGenes ||
     Object.keys(parentGenes.sgf).length > 0 || Object.keys(parentGenes.sgm).length > 0 ||
     Object.keys(parentGenes.dgf).length > 0 || Object.keys(parentGenes.dgm).length > 0;
@@ -1170,7 +1186,6 @@ function updateCalculateBtn() {
     hint.textContent = '';
   }
 }
-
 function clearAll() {
   ['sire','dam','sgf','sgm','dgf','dgm'].forEach(parent => {
     parentGenes[parent] = {};
@@ -1194,7 +1209,6 @@ function clearAll() {
   if (section) section.classList.remove('visible');
   updateCalculateBtn();
 }
-
 function saveData() {
   const data = {
     names: {},
@@ -1215,7 +1229,6 @@ function saveData() {
   a.click();
   URL.revokeObjectURL(url);
 }
-
 function toggleGrandparent(key) {
   const wrap = document.getElementById(`${key}-wrap`);
   const btn = document.getElementById(`toggle-${key}`);
@@ -1224,7 +1237,6 @@ function toggleGrandparent(key) {
   wrap.classList.toggle('visible', !isVisible);
   btn.classList.toggle('active', !isVisible);
 }
-
 function calculate() {
   const warnings = [];
   const infos = [];
@@ -1265,45 +1277,47 @@ function calculate() {
     const dgmState = dgmEntry?.state || 'Normal';
     let sireState = sireEntry?.state;
     let damState = damEntry?.state;
-    if (!sireState && (sgfState !== 'Normal' || sgmState !== 'Normal')) {
+    if (!sireState) {
       const inherited = inheritGeneFromParents(sgfState, sgmState, geneName);
-      if (gene.category === 'recessive') {
+      const gene_cat = gene.category;
+      if (gene_cat === 'recessive') {
         if (inherited.visual > 0.5) sireState = 'Visual';
         else if (inherited.het > 0.5) sireState = 'Het';
-        else if (inherited['66poss'] > 0.3) sireState = '66% Poss Het';
+        else if (inherited.het > 0.3) sireState = '66% Poss Het';
+        else if (inherited.het > 0) sireState = '50% Poss Het';
         else sireState = 'Normal';
-      } else if (gene.category === 'incdominant') {
+      } else if (gene_cat === 'incdominant') {
         if (inherited.super > 0.3) sireState = 'Super (Silkback)';
-        else if (inherited.visual > 0.5) sireState = 'Visual (Leatherback)';
+        else if (inherited.visual > 0.3) sireState = 'Visual (Leatherback)';
         else sireState = 'Normal';
-      } else if (gene.category === 'dominant') {
-        if (inherited.visual > 0.5) sireState = 'Visual';
+      } else if (gene_cat === 'dominant') {
+        if (inherited.visual > 0.3) sireState = 'Visual';
         else sireState = 'Normal';
       } else {
-        sireState = inherited.visual > 0 ? 'Visual' : 'Normal';
+        if (inherited.visual > 0.3) sireState = 'Visual';
+        else sireState = 'Normal';
       }
-    } else if (!sireState) {
-      sireState = 'Normal';
     }
-    if (!damState && (dgfState !== 'Normal' || dgmState !== 'Normal')) {
+    if (!damState) {
       const inherited = inheritGeneFromParents(dgfState, dgmState, geneName);
-      if (gene.category === 'recessive') {
+      const gene_cat = gene.category;
+      if (gene_cat === 'recessive') {
         if (inherited.visual > 0.5) damState = 'Visual';
         else if (inherited.het > 0.5) damState = 'Het';
-        else if (inherited['66poss'] > 0.3) damState = '66% Poss Het';
+        else if (inherited.het > 0.3) damState = '66% Poss Het';
+        else if (inherited.het > 0) damState = '50% Poss Het';
         else damState = 'Normal';
-      } else if (gene.category === 'incdominant') {
+      } else if (gene_cat === 'incdominant') {
         if (inherited.super > 0.3) damState = 'Super (Silkback)';
-        else if (inherited.visual > 0.5) damState = 'Visual (Leatherback)';
+        else if (inherited.visual > 0.3) damState = 'Visual (Leatherback)';
         else damState = 'Normal';
-      } else if (gene.category === 'dominant') {
-        if (inherited.visual > 0.5) damState = 'Visual';
+      } else if (gene_cat === 'dominant') {
+        if (inherited.visual > 0.3) damState = 'Visual';
         else damState = 'Normal';
       } else {
-        damState = inherited.visual > 0 ? 'Visual' : 'Normal';
+        if (inherited.visual > 0.3) damState = 'Visual';
+        else damState = 'Normal';
       }
-    } else if (!damState) {
-      damState = 'Normal';
     }
     const sireProven = document.getElementById(`sire-gene-${Object.keys(parentGenes.sire).find(k => parentGenes.sire[k].gene === geneName)}-proven`)?.checked || false;
     const damProven = document.getElementById(`dam-gene-${Object.keys(parentGenes.dam).find(k => parentGenes.dam[k].gene === geneName)}-proven`)?.checked || false;
@@ -1346,7 +1360,65 @@ function calculate() {
   const sorted = Object.values(merged).sort((a, b) => b.prob - a.prob);
   renderResults(sorted, warnings, infos);
 }
-
+function combineGeneResults(allGeneResults) {
+  let combined = [{}];
+  let combinedProbs = [1.0];
+  for (const { geneName, outcomes } of allGeneResults) {
+    const newCombined = [];
+    const newProbs = [];
+    for (let i = 0; i < combined.length; i++) {
+      for (const [state, prob] of Object.entries(outcomes)) {
+        if (prob <= 0) continue;
+        const newEntry = { ...combined[i], [geneName]: state };
+        newCombined.push(newEntry);
+        newProbs.push(combinedProbs[i] * prob);
+      }
+    }
+    combined = newCombined;
+    combinedProbs = newProbs;
+  }
+  return combined.map((combo, i) => ({ combo, prob: combinedProbs[i] }));
+}
+function formatPhenotype(combo) {
+  const visuals = [], hets = [], possHets = [], supers = [];
+  const genotypeparts = [];
+  for (const [gene, state] of Object.entries(combo)) {
+    const g = GENES[gene];
+    if (!g) continue;
+    if (g.category === 'recessive') {
+      if (state === 'visual') { visuals.push(gene); genotypeparts.push(`hom ${g.short}`); }
+      else if (state === 'het') { hets.push(gene); genotypeparts.push(`het ${g.short}`); }
+      else if (state === '66poss') { possHets.push(gene); genotypeparts.push(`66% poss het ${g.short}`); }
+      else { genotypeparts.push(`nrm ${g.short}`); }
+    } else if (g.category === 'incdominant') {
+      if (state === 'super') { supers.push(gene); genotypeparts.push(`${g.short}/Silkback`); }
+      else if (state === 'visual') { visuals.push(`Leatherback`); genotypeparts.push(`het ${g.short}`); }
+      else { genotypeparts.push(`nrm ${g.short}`); }
+    } else if (g.category === 'dominant') {
+      if (state === 'visual') { visuals.push(gene); genotypeparts.push(`${g.short} dominant`); }
+      else { genotypeparts.push(`nrm ${g.short}`); }
+    } else if (g.category === 'nonmendelian') {
+      if (state !== 'None') { visuals.push(`${state} ${gene}`); genotypeparts.push(state); }
+    } else if (g.category === 'lineage') {
+      if (state === 'visual') { visuals.push(gene); genotypeparts.push(`${g.short} lineage`); }
+    }
+  }
+  let phenotype = '';
+  const parts = [];
+  if (supers.length) parts.push(...supers.map(s => `Super ${s}`));
+  if (visuals.length) parts.push(...visuals);
+  if (hets.length) parts.push(...hets.map(h => `Het ${h}`));
+  if (possHets.length) parts.push(...possHets.map(h => `66% Poss Het ${h}`));
+  if (!parts.length) parts.push('Normal / Wildtype');
+  phenotype = parts.join(', ');
+  return {
+    phenotype,
+    genotype: genotypeparts.join(' / ') || 'nrm',
+    hasSuper: supers.length > 0,
+    hasVisual: visuals.length > 0,
+    hasHet: hets.length > 0
+  };
+}
 function renderResults(results, warnings, infos) {
   lastResults = results;
   const section = document.getElementById('results-section');
@@ -1399,9 +1471,7 @@ function renderResults(results, warnings, infos) {
   document.getElementById('btn-export-png').style.display = '';
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-
 let lastResults = [];
-
 function loadData(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -1432,20 +1502,16 @@ function loadData(event) {
   reader.readAsText(file);
   event.target.value = '';
 }
-
 function exportPNG() {
-  // If calculate hasn't been run yet but both parents have genes, run it first
   const sireHasGenes = Object.keys(parentGenes.sire).length > 0;
   const damHasGenes = Object.keys(parentGenes.dam).length > 0;
   if (sireHasGenes && damHasGenes && lastResults.length === 0) {
     calculate();
   }
-
   const sireName = document.getElementById('sire-name').value || 'Sire';
   const damName = document.getElementById('dam-name').value || 'Dam';
   const sireGenes = Object.values(parentGenes.sire);
   const damGenes = Object.values(parentGenes.dam);
-
   const gpInfo = {};
   ['sgf','sgm','dgf','dgm'].forEach(k => {
     const genes = Object.values(parentGenes[k]);
@@ -1454,7 +1520,6 @@ function exportPNG() {
   });
   const gpTitles = { sgf:"Sire's Father", sgm:"Sire's Mother", dgf:"Dam's Father", dgm:"Dam's Mother" };
   const gpIsMale = { sgf:true, sgm:false, dgf:true, dgm:false };
-
   function stateTag(state) {
     const map = {
       'Visual': { bg:'rgba(212,168,67,0.18)', border:'rgba(212,168,67,0.5)', color:'#d4a843' },
@@ -1467,7 +1532,6 @@ function exportPNG() {
       : { bg:'rgba(74,68,56,0.35)', border:'#2e2a22', color:'#8a7f6e' });
     return `<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;letter-spacing:0.04em;background:${style.bg};border:1px solid ${style.border};color:${style.color};white-space:nowrap">${state}</span>`;
   }
-
   function panelHTML(title, isMale, name, genes) {
     const sexColor = isMale ? '#7aabee' : '#ee7aaa';
     const sexBg = isMale ? 'rgba(100,150,220,0.15)' : 'rgba(220,100,130,0.15)';
@@ -1496,7 +1560,6 @@ function exportPNG() {
         </div>
       </div>`;
   }
-
   let gpSections = '';
   [['sgf','sgm'],['dgf','dgm']].forEach(([lk,rk]) => {
     if (!gpInfo[lk] && !gpInfo[rk]) return;
@@ -1508,7 +1571,6 @@ function exportPNG() {
         <div style="display:flex;gap:16px">${left}${right}</div>
       </div>`;
   });
-
   let resultsHTML = '';
   if (lastResults.length > 0) {
     const rows = lastResults.map((r, i) => {
@@ -1548,7 +1610,6 @@ function exportPNG() {
         </table>
       </div>`;
   }
-
   const html = `
     <div id="png-export-root" style="
       width:880px;
@@ -1590,17 +1651,13 @@ function exportPNG() {
         ${resultsHTML}
       </div>
     </div>`;
-
   const wrapper = document.createElement('div');
   wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1';
   wrapper.innerHTML = html;
   document.body.appendChild(wrapper);
-
   const exportBtn = document.getElementById('btn-export-png');
   exportBtn.textContent = 'Generating…';
   exportBtn.disabled = true;
-
-  // Wait a tick for fonts to apply, then snapshot
   setTimeout(() => {
     const target = wrapper.querySelector('#png-export-root');
     html2canvas(target, {
@@ -1629,7 +1686,20 @@ function exportPNG() {
     });
   }, 300);
 }
-
+function toggleColorScheme() {
+  const body = document.body;
+  const toggle = document.getElementById('color-toggle');
+  body.classList.toggle('dark-mode');
+  toggle.classList.toggle('active');
+  localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+}
+document.addEventListener('DOMContentLoaded', function() {
+  const isDarkMode = localStorage.getItem('darkMode') === 'true';
+  if (isDarkMode) {
+    document.body.classList.add('dark-mode');
+    document.getElementById('color-toggle').classList.add('active');
+  }
+});
 </script>
 </body>
 </html>

@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terminologies - Scrappy's Exotic Yard</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f5f5;
+    --surface: #ffffff;
+    --surface2: #f9f9f9;
+    --border: #e0e0e0;
+    --accent: #E67E22;
+    --accent2: #d46d0a;
+    --accent-glow: rgba(230,126,34,0.12);
+    --text: #2C3E50;
+    --text-dim: #5a6c7d;
+    --text-muted: #8a9aaa;
+    --red: #e74c3c;
+    --green: #27AE60;
+    --gunmetal: #2C3E50;
+    --tag-bg: #f0f5f9;
+    --radius: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Roboto', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(230,126,34,0.06) 0%, transparent 70%);
+  }
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    position: relative;
+    background: var(--surface);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .logo-mark {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    line-height: 1;
+    opacity: 0.9;
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+  }
+  .header-main h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .header-main h1 span { color: var(--accent); }
+  .header-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .header-badge {
+    margin-left: auto;
+    background: var(--accent-glow);
+    border: 1px solid rgba(230,126,34,0.3);
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  /* NAVIGATION */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+  }
+  nav a {
+    flex: 1;
+    text-align: center;
+    padding: 14px 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    color: var(--text-dim);
+    border-right: 1px solid var(--border);
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  nav a:last-child {
+    border-right: none;
+  }
+  nav a:hover {
+    background: var(--accent-glow);
+    color: var(--accent);
+  }
+  nav a.active {
+    background: var(--accent);
+    color: #ffffff;
+  }
+  /* COLOR TOGGLE */
+  .color-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 20px;
+    border-left: 1px solid var(--border);
+    margin-left: 20px;
+  }
+  .toggle-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+  }
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s;
+    border: 1px solid var(--border);
+  }
+  .toggle-switch.active {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .toggle-switch::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+    transition: left 0.3s;
+  }
+  .toggle-switch.active::before {
+    left: 22px;
+  }
+  /* DARK MODE OVERRIDES */
+  body.dark-mode {
+    --bg: #0f0e0c;
+    --surface: #1a1814;
+    --surface2: #242018;
+    --border: #2e2a22;
+    --accent: #d4a843;
+    --accent2: #c47c2a;
+    --accent-glow: rgba(212,168,67,0.15);
+    --text: #e8e0d0;
+    --text-dim: #8a7f6e;
+    --text-muted: #4a4438;
+    --gunmetal: #e8e0d0;
+    --tag-bg: #1e1c16;
+  }
+  /* MAIN CONTENT */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px;
+  }
+  .page-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+  /* CATEGORY SECTIONS */
+  .category-section {
+    margin-bottom: 50px;
+  }
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .category-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--accent-glow);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--accent);
+  }
+  .category-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--gunmetal);
+    letter-spacing: -0.01em;
+  }
+  /* TERM CARDS */
+  .terms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+  .term-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 4px solid var(--accent);
+  }
+  .term-card:hover {
+    box-shadow: 0 8px 24px rgba(230,126,34,0.15);
+    transform: translateY(-2px);
+    border-left-color: var(--accent2);
+  }
+  .term-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+  }
+  .term-definition {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+  /* SPECIAL TAGS */
+  .visual-tag {
+    display: inline-block;
+    background: rgba(230,126,34,0.1);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 6px;
+    margin-bottom: 10px;
+  }
+  .recessive-tag {
+    background: rgba(41,128,185,0.1);
+    color: #2980b9;
+  }
+  .dominant-tag {
+    background: rgba(39,174,96,0.1);
+    color: var(--green);
+  }
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    header { padding: 16px 18px; }
+    .container { padding: 20px; }
+    .page-title { font-size: 28px; }
+    nav a { font-size: 11px; padding: 12px 10px; }
+    .terms-grid { grid-template-columns: 1fr; }
+    .category-header { flex-direction: column; align-items: flex-start; }
+    .category-icon { width: 32px; height: 32px; }
+    .category-title { font-size: 20px; }
+  }
+  /* FOOTER */
+  footer {
+    background: var(--gunmetal);
+    color: #000000;
+    padding: 30px 40px;
+    text-align: center;
+    margin-top: 60px;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-mark">Scrappy's</div>
+  <img src="ScrappyLogoSmall.png" alt="Scrappy's Exotic Yard" style="width:95px;height:63px;object-fit:contain;align-self:center;">
+  <div class="header-main">
+    <h1>Linage <span>Tool</span></h1>
+    <div class="header-sub">Bearded Dragon — Phenotype & Probability Engine</div>
+  </div>
+  <div class="header-badge">v4.0 · Beta</div>
+</header>
+<nav>
+  <a href="index.html">Breeding Tool</a>
+  <a href="terminologies.html" class="active">Terminologies</a>
+ <!--  <a href="guides.html">Guides</a> -->
+  <div class="color-toggle" id="color-toggle-container">
+    <span class="toggle-label">Dark Mode</span>
+    <div class="toggle-switch" id="color-toggle" onclick="toggleColorScheme()"></div>
+  </div>
+</nav>
+
+<div class="container">
+  <h1 class="page-title">Bearded Dragon <span style="color: var(--accent);">Terminologies</span></h1>
+  <p class="page-subtitle">Essential terms and definitions for bearded dragon breeding</p>
+
+  <!-- GENETICS & INHERITANCE -->
+  <div class="category-section">
+    <div class="category-header">
+      <div class="category-icon">🧬</div>
+      <h2 class="category-title">Genetics & Inheritance</h2>
+    </div>
+    <div class="terms-grid">
+      <div class="term-card">
+        <div class="term-name">Super</div>
+        <div class="term-definition">The homozygous form of a co-dominant gene (e.g., a Silkback is the "Super" form of a Leatherback).</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Hidden Gene</div>
+        <div class="term-definition">A genetic trait present in the genotype that is not currently expressed in the phenotype but can be passed to progeny.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Het (Heterozygous)</div>
+        <div class="term-definition">A carrier of a recessive gene that is not visually expressed.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Homo (Homozygous)</div>
+        <div class="term-definition">Possessing two copies of a gene, making the trait visually apparent.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Visual</div>
+        <div class="term-definition">A trait that is physically apparent in the dragon's appearance.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Recessive</div>
+        <div class="term-definition">A mutation that requires two copies (homozygous) to be visually expressed.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Dominant</div>
+        <div class="term-definition">A trait that is visual with only one copy of the gene inherited from either parent.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Co-Dominant</div>
+        <div class="term-definition">A trait where the visual appearance changes depending on whether there are one or two copies of the gene.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Expression</div>
+        <div class="term-definition">The degree or manner in which a genetic trait is physically manifested.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Probability</div>
+        <div class="term-definition">The statistical likelihood of specific traits appearing in a clutch based on the parents' genetics.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Phenotype</div>
+        <div class="term-definition">Physical appearance (Visual) based on expressed genes.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Genotype</div>
+        <div class="term-definition">The actual DNA makeup, including hidden or carrier traits.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Morphology</div>
+        <div class="term-definition">The study of the form and structure of the animal.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MORPHS & TRAITS -->
+  <div class="category-section">
+    <div class="category-header">
+      <div class="category-icon">🎨</div>
+      <h2 class="category-title">Morphs & Traits</h2>
+    </div>
+    <div class="terms-grid">
+      <div class="term-card">
+        <div class="term-name">Hypomelanistic</div>
+        <div class="term-definition">Reduction of melanin (black pigment); results in clear/white nails.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Translucent</div>
+        <div class="term-definition">Suppression of white skin pigment; results in "gummy" skin and solid black eyes.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Leatherback</div>
+        <div class="term-definition">Co-dominant trait that reduces scale size for a smoother feel.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Silkback</div>
+        <div class="term-definition">The scaleless "Super" form of the Leatherback mutation.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Witblits</div>
+        <div class="term-definition">A patternless mutation producing earthy, monochromatic colors (cream, peach, tan).</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Zero</div>
+        <div class="term-definition">A patternless mutation producing cool tones (white, silver, slate grey).</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Axanthic</div>
+        <div class="term-definition">Absence of yellow and red pigments; results in a grey/black/white appearance.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Dunner</div>
+        <div class="term-definition">Dominant trait; scales point sideways and tail patterns are vertical.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Genetic Stripe</div>
+        <div class="term-definition">Dominant trait with two symmetrical lines running from neck to tail base.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Tiger</div>
+        <div class="term-definition">Dominant trait featuring horizontal bars or stripes along the sides.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Red Monster</div>
+        <div class="term-definition">Extreme selective breeding for total body saturation of deep red pigment.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Citrus</div>
+        <div class="term-definition">Selective breeding focused on neon yellow and lemon hues.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Yellow</div>
+        <div class="term-definition">Selective breeding focused on high-contrast yellow pigments.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Orange</div>
+        <div class="term-definition">Selective breeding focused on vibrant tangerine and pumpkin tones.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Sunburst</div>
+        <div class="term-definition">Selective breeding focused on intense orange and yellow saturation.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Paradox</div>
+        <div class="term-definition">Spontaneous developmental anomaly resulting in asymmetrical color patches; not heritable.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Normal</div>
+        <div class="term-definition">A "Wild Type" dragon without any specific genetic mutations.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIOLOGY & ANATOMY -->
+  <div class="category-section">
+    <div class="category-header">
+      <div class="category-icon">🦎</div>
+      <h2 class="category-title">Biology & Anatomy</h2>
+    </div>
+    <div class="terms-grid">
+      <div class="term-card">
+        <div class="term-name">Pogona</div>
+        <div class="term-definition">The genus classification for all Bearded Dragon species.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Parietal Eye</div>
+        <div class="term-definition">Also known as the "Third Eye"; a light-sensing organ on top of the head for predator detection.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Ecdysis</div>
+        <div class="term-definition">The technical term for the shedding of the old skin.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Shedding</div>
+        <div class="term-definition">The cyclical process of replacing old skin with new growth.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Femoral Pores</div>
+        <div class="term-definition">Glandular openings on the underside of the thighs used for pheromone marking.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Cloaca</div>
+        <div class="term-definition">The common chamber and outlet into which the intestinal, urinary, and genital tracts open.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Reptile</div>
+        <div class="term-definition">A cold-blooded vertebrate animal of a class that includes snakes, lizards, and turtles.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Brumation</div>
+        <div class="term-definition">A naturally occurring state of semi-dormancy in cold cycles.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Eye Fade</div>
+        <div class="term-definition">The biological transition of solid black eyes into normal irises over time.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BREEDING & OFFSPRING -->
+  <div class="category-section">
+    <div class="category-header">
+      <div class="category-icon">🥚</div>
+      <h2 class="category-title">Breeding & Offspring</h2>
+    </div>
+    <div class="terms-grid">
+      <div class="term-card">
+        <div class="term-name">Breeding</div>
+        <div class="term-definition">The process of pairing a Sire and Dam to produce a clutch.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Lineage</div>
+        <div class="term-definition">The documented ancestral descent or "pedigree" of the dragon.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Line Breeding</div>
+        <div class="term-definition">Selective breeding of related animals to lock in specific traits.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Sire</div>
+        <div class="term-definition">The biological father of the offspring.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Dam</div>
+        <div class="term-definition">The biological mother of the offspring.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Progeny</div>
+        <div class="term-definition">Offspring produced from a specific pairing.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Clutch</div>
+        <div class="term-definition">The group of eggs laid in one sitting.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Slugs</div>
+        <div class="term-definition">Non-viable, infertile eggs (often yellowed and soft).</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Hatchlings</div>
+        <div class="term-definition">Baby dragons that have recently emerged from their eggs.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Gestation</div>
+        <div class="term-definition">The time during which the female is carrying developed eggs before laying.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Incubation</div>
+        <div class="term-definition">The process of maintaining eggs at specific temperatures for development.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Incubation Tint</div>
+        <div class="term-definition">Color variance caused by temperature (High temp = Higher saturation).</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">DOH</div>
+        <div class="term-definition">Date of Hatch; the specific day a dragon emerged from the egg.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Gravid</div>
+        <div class="term-definition">The state of a female carrying eggs.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Breeder</div>
+        <div class="term-definition">A person who selectively pairs dragons to produce specific traits or morphs.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEALTH & BEHAVIOR -->
+  <div class="category-section">
+    <div class="category-header">
+      <div class="category-icon">💪</div>
+      <h2 class="category-title">Health & Behavior</h2>
+    </div>
+    <div class="terms-grid">
+      <div class="term-card">
+        <div class="term-name">Lethargic</div>
+        <div class="term-definition">An abnormal state of sluggishness or inactivity, often indicating illness.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">MBD</div>
+        <div class="term-definition">Metabolic Bone Disease; skeletal failure due to Calcium/UVB deficiency.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Gaping</div>
+        <div class="term-definition">Opening the mouth for thermoregulation to release excess heat.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Pancaking</div>
+        <div class="term-definition">Flattening the body to absorb more heat from a surface or lamp.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Black Bearding</div>
+        <div class="term-definition">Darkening of the beard due to stress, aggression, or mating.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Head Bob</div>
+        <div class="term-definition">A dominant territorial signal or mating display.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Arm Wave</div>
+        <div class="term-definition">A submissive social acknowledgement or sign of non-aggression.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Stress Marks</div>
+        <div class="term-definition">Temporary physiological patterns triggered by mood, health, or temperature.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Submissive</div>
+        <div class="term-definition">Behavior indicating a lower social rank or lack of threat.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Dominant</div>
+        <div class="term-definition">Behavior indicating territorial control or higher social rank.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HUSBANDRY & ENVIRONMENT -->
+  <div class="category-section">
+    <div class="category-header">
+      <div class="category-icon">🏠</div>
+      <h2 class="category-title">Husbandry & Environment</h2>
+    </div>
+    <div class="terms-grid">
+      <div class="term-card">
+        <div class="term-name">Heat Lamp</div>
+        <div class="term-definition">An electrical device used to provide radiant heat for a basking area.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Basking Area</div>
+        <div class="term-definition">The designated hot zone for thermoregulation via external heat.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">UVB</div>
+        <div class="term-definition">Ultraviolet B radiation required for Vitamin D3 synthesis.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">D3</div>
+        <div class="term-definition">Vitamin synthesized from UVB exposure, necessary for calcium processing.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Calcium</div>
+        <div class="term-definition">Essential mineral for bone development and muscle function.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Desert</div>
+        <div class="term-definition">The natural arid habitat of most Pogona species.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Husbandry</div>
+        <div class="term-definition">Appearance and health influenced by UVB, diet, and hydration.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Enclosure</div>
+        <div class="term-definition">The managed habitat or tank where the dragon resides.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Bioactive</div>
+        <div class="term-definition">A habitat using live substrate and cleanup insects (isopods/springtails).</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Substrate</div>
+        <div class="term-definition">The flooring material used inside the enclosure.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Humidity</div>
+        <div class="term-definition">The level of moisture present in the air.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Misting</div>
+        <div class="term-definition">Manual spraying of water for hydration and aiding in shed.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Exotic</div>
+        <div class="term-definition">Pertaining to non-domesticated or unique pet species like reptiles.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIET & NUTRITION -->
+  <div class="category-section">
+    <div class="category-header">
+      <div class="category-icon">🍽️</div>
+      <h2 class="category-title">Diet & Nutrition</h2>
+    </div>
+    <div class="terms-grid">
+      <div class="term-card">
+        <div class="term-name">Dubia</div>
+        <div class="term-definition">High-protein staple feeder insect (Blaptica dubia).</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Cricket</div>
+        <div class="term-definition">A common live feeder insect used for protein.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Silkworm</div>
+        <div class="term-definition">A highly nutritious soft-bodied feeder larva.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Superworm</div>
+        <div class="term-definition">Larvae of the Zophobas morio beetle, used as a feeder.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Dusting</div>
+        <div class="term-definition">The act of coating feeder insects with calcium or vitamin supplements.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Electrolyte</div>
+        <div class="term-definition">Minerals used for rehydration and physiological balance.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Gut Loading</div>
+        <div class="term-definition">Feeding high-quality nutrients to insects before they are fed to the dragon.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+function toggleColorScheme() {
+  const body = document.body;
+  const toggle = document.getElementById('color-toggle');
+  body.classList.toggle('dark-mode');
+  toggle.classList.toggle('active');
+  localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+}
+document.addEventListener('DOMContentLoaded', function() {
+  const isDarkMode = localStorage.getItem('darkMode') === 'true';
+  if (isDarkMode) {
+    document.body.classList.add('dark-mode');
+    document.getElementById('color-toggle').classList.add('active');
+  }
+});
+</script>
+</body>
+</html>
