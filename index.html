@@ -87,26 +87,77 @@
     margin: 0 auto;
     padding: 32px 40px 80px;
   }
-  .pedigree-grid {
+  /* Parent row: always 2 columns on desktop */
+  .parents-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
-    margin-bottom: 24px;
+    margin-bottom: 0;
   }
-  .pedigree-label {
-    grid-column: 1 / 5;
+  /* Each parent column contains the parent panel + its grandparent panels below */
+  .parent-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  /* Grandparent panels sit inside their parent column, full width */
+  .grandparents-area {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .grandparent-panel-wrap {
+    display: none;
+    animation: fadeIn 0.22s ease;
+  }
+  .grandparent-panel-wrap.visible {
+    display: block;
+  }
+  /* Toggle buttons on parent panel */
+  .gp-toggles {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .btn-gp-toggle {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
     font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 8px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-gp-toggle:hover {
+    border-color: var(--accent2);
+    color: var(--accent);
+  }
+  .btn-gp-toggle.active {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .btn-gp-toggle .toggle-icon {
+    font-size: 13px;
+  }
+  /* Grandparent panel label */
+  .gp-section-label {
+    font-size: 10px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--text-muted);
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .pedigree-label.gp {
-    grid-column: 1 / 3;
-  }
-  .pedigree-label.p {
-    grid-column: 3 / 5;
+    padding: 4px 0 8px 2px;
   }
   /* PANELS */
   .panel {
@@ -143,7 +194,7 @@
   /* PEDIGREE */
   .pedigree-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
     margin-bottom: 16px;
   }
@@ -269,10 +320,15 @@
     transition: all 0.15s;
   }
   .btn-add-gene:hover { border-color: var(--accent2); color: var(--accent); }
-  /* CALCULATE BUTTON */
+  /* CALCULATE BUTTON ROW */
   .calculate-section {
     text-align: center;
-    margin: 8px 0 32px;
+    margin: 28px 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
   .btn-calculate {
     background: var(--accent);
@@ -283,7 +339,7 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
     border: none;
-    padding: 16px 60px;
+    padding: 16px 48px;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
@@ -296,8 +352,38 @@
     background: rgba(255,255,255,0);
     transition: background 0.15s;
   }
-  .btn-calculate:hover { background: #e8bb55; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,168,67,0.3); }
-  .btn-calculate:active { transform: translateY(0); }
+  .btn-calculate:hover:not(:disabled) { background: #e8bb55; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,168,67,0.3); }
+  .btn-calculate:active:not(:disabled) { transform: translateY(0); }
+  .btn-calculate:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    padding: 16px 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--accent2); color: var(--accent); background: var(--accent-glow); }
+  .btn-secondary.btn-export { border-color: rgba(212,168,67,0.4); color: var(--accent); }
+  .btn-secondary.btn-export:hover { background: var(--accent-glow); border-color: var(--accent); }
+  .calc-hint {
+    width: 100%;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
   /* RESULTS */
   #results-section { display: none; }
   #results-section.visible { display: block; animation: fadeIn 0.3s ease; }
@@ -429,14 +515,20 @@
     padding: 16px;
   }
   /* RESPONSIVE */
-  @media (max-width: 900px) {
-    .pedigree-grid { grid-template-columns: 1fr; }
-    header { padding: 20px; }
-    .app-container { padding: 20px; }
-    .gene-row { grid-template-columns: 1fr; }
+  @media (max-width: 768px) {
+    .parents-grid { grid-template-columns: 1fr; }
+    header { padding: 16px 18px; gap: 14px; }
+    .app-container { padding: 16px 14px 60px; }
+    .gene-row { grid-template-columns: 1fr; gap: 8px; }
     .pedigree-row { grid-template-columns: 1fr; }
+    .header-main h1 { font-size: 24px; }
+    .btn-calculate { padding: 14px 28px; font-size: 13px; }
+    .btn-secondary { padding: 14px 18px; font-size: 12px; }
+    .calculate-section { gap: 8px; }
+    .prob-bar-cell { width: 120px; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 <header>
@@ -446,133 +538,170 @@
     <h1>Linage <span>Tool</span></h1>
     <div class="header-sub">Bearded Dragon — Phenotype & Probability Engine</div>
   </div>
-  <div class="header-badge">v2.0 · Beta</div>
+  <div class="header-badge">v3.0 · Beta</div>
 </header>
 <div class="app-container">
-  <div class="pedigree-grid">
-<!--     <div class="pedigree-label gp">Grandparents</div>
-    <div class="pedigree-label p">Parents</div> -->
-    
-    <!-- PATERNAL GRANDPARENTS -->
-    <div class="panel" id="sgf-panel">
-      <div class="panel-header">
-        <div class="sex-badge male">♂</div>
-        <div class="panel-title">Sire's Father</div>
-      </div>
-      <div class="panel-body">
-        <div class="pedigree-row">
-          <div class="field-group">
-            <label>Name</label>
-            <input type="text" id="sgf-name" placeholder="Name">
-          </div>
-        </div>
-        <div class="section-label">Genetic Profile</div>
-        <div class="gene-list" id="sgf-genes"></div>
-        <div class="empty-genes" id="sgf-empty">No genes added yet.</div>
-        <button class="btn-add-gene" onclick="addGene('sgf')">+ Add Gene</button>
-      </div>
-    </div>
-    
-    <div class="panel" id="sgm-panel">
-      <div class="panel-header">
-        <div class="sex-badge female">♀</div>
-        <div class="panel-title">Sire's Mother</div>
-      </div>
-      <div class="panel-body">
-        <div class="pedigree-row">
-          <div class="field-group">
-            <label>Name</label>
-            <input type="text" id="sgm-name" placeholder="Name">
-          </div>
-        </div>
-        <div class="section-label">Genetic Profile</div>
-        <div class="gene-list" id="sgm-genes"></div>
-        <div class="empty-genes" id="sgm-empty">No genes added yet.</div>
-        <button class="btn-add-gene" onclick="addGene('sgm')">+ Add Gene</button>
-      </div>
-    </div>
+<div class="parents-grid">
 
-    <!-- MATERNAL GRANDPARENTS -->
-    <div class="panel" id="dgf-panel">
-      <div class="panel-header">
-        <div class="sex-badge male">♂</div>
-        <div class="panel-title">Dam's Father</div>
-      </div>
-      <div class="panel-body">
-        <div class="pedigree-row">
-          <div class="field-group">
-            <label>Name</label>
-            <input type="text" id="dgf-name" placeholder="Name">
+    <!-- SIRE COLUMN -->
+    <div class="parent-column">
+      <!-- SIRE -->
+      <div class="panel" id="sire-panel">
+        <div class="panel-header">
+          <div class="sex-badge male">♂</div>
+          <div class="panel-title">Sire</div>
+        </div>
+        <div class="panel-body">
+          <div class="pedigree-row">
+            <div class="field-group">
+              <label>Sire Name</label>
+              <input type="text" id="sire-name" placeholder="e.g. Skippy">
+            </div>
+          </div>
+          <div class="section-label">Genetic Profile</div>
+          <div class="gene-list" id="sire-genes"></div>
+          <div class="empty-genes" id="sire-empty">No genes added yet.</div>
+          <button class="btn-add-gene" onclick="addGene('sire')">+ Add Gene</button>
+          <div class="gp-toggles">
+            <button class="btn-gp-toggle" id="toggle-sgf" onclick="toggleGrandparent('sgf')">
+              <span class="toggle-icon">♂</span> Sire's Father
+            </button>
+            <button class="btn-gp-toggle" id="toggle-sgm" onclick="toggleGrandparent('sgm')">
+              <span class="toggle-icon">♀</span> Sire's Mother
+            </button>
           </div>
         </div>
-        <div class="section-label">Genetic Profile</div>
-        <div class="gene-list" id="dgf-genes"></div>
-        <div class="empty-genes" id="dgf-empty">No genes added yet.</div>
-        <button class="btn-add-gene" onclick="addGene('dgf')">+ Add Gene</button>
       </div>
-    </div>
 
-    <div class="panel" id="dgm-panel">
-      <div class="panel-header">
-        <div class="sex-badge female">♀</div>
-        <div class="panel-title">Dam's Mother</div>
-      </div>
-      <div class="panel-body">
-        <div class="pedigree-row">
-          <div class="field-group">
-            <label>Name</label>
-            <input type="text" id="dgm-name" placeholder="Name">
+      <!-- SIRE'S GRANDPARENTS -->
+      <div class="grandparents-area" id="sire-gp-area">
+        <div class="grandparent-panel-wrap" id="sgf-wrap">
+          <div class="panel" id="sgf-panel">
+            <div class="panel-header">
+              <div class="sex-badge male">♂</div>
+              <div class="panel-title">Sire's Father</div>
+            </div>
+            <div class="panel-body">
+              <div class="pedigree-row">
+                <div class="field-group">
+                  <label>Name</label>
+                  <input type="text" id="sgf-name" placeholder="Name">
+                </div>
+              </div>
+              <div class="section-label">Genetic Profile</div>
+              <div class="gene-list" id="sgf-genes"></div>
+              <div class="empty-genes" id="sgf-empty">No genes added yet.</div>
+              <button class="btn-add-gene" onclick="addGene('sgf')">+ Add Gene</button>
+            </div>
           </div>
         </div>
-        <div class="section-label">Genetic Profile</div>
-        <div class="gene-list" id="dgm-genes"></div>
-        <div class="empty-genes" id="dgm-empty">No genes added yet.</div>
-        <button class="btn-add-gene" onclick="addGene('dgm')">+ Add Gene</button>
+        <div class="grandparent-panel-wrap" id="sgm-wrap">
+          <div class="panel" id="sgm-panel">
+            <div class="panel-header">
+              <div class="sex-badge female">♀</div>
+              <div class="panel-title">Sire's Mother</div>
+            </div>
+            <div class="panel-body">
+              <div class="pedigree-row">
+                <div class="field-group">
+                  <label>Name</label>
+                  <input type="text" id="sgm-name" placeholder="Name">
+                </div>
+              </div>
+              <div class="section-label">Genetic Profile</div>
+              <div class="gene-list" id="sgm-genes"></div>
+              <div class="empty-genes" id="sgm-empty">No genes added yet.</div>
+              <button class="btn-add-gene" onclick="addGene('sgm')">+ Add Gene</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </div><!-- end sire column -->
 
-    <!-- SIRE -->
-    <div class="panel" id="sire-panel">
-      <div class="panel-header">
-        <div class="sex-badge male">♂</div>
-        <div class="panel-title">Sire</div>
-      </div>
-      <div class="panel-body">
-        <div class="pedigree-row">
-          <div class="field-group">
-            <label>Sire Name</label>
-            <input type="text" id="sire-name" placeholder="e.g. Skippy">
+    <!-- DAM COLUMN -->
+    <div class="parent-column">
+      <!-- DAM -->
+      <div class="panel" id="dam-panel">
+        <div class="panel-header">
+          <div class="sex-badge female">♀</div>
+          <div class="panel-title">Dam</div>
+        </div>
+        <div class="panel-body">
+          <div class="pedigree-row">
+            <div class="field-group">
+              <label>Dam Name</label>
+              <input type="text" id="dam-name" placeholder="e.g. Comet">
+            </div>
+          </div>
+          <div class="section-label">Genetic Profile</div>
+          <div class="gene-list" id="dam-genes"></div>
+          <div class="empty-genes" id="dam-empty">No genes added yet.</div>
+          <button class="btn-add-gene" onclick="addGene('dam')">+ Add Gene</button>
+          <div class="gp-toggles">
+            <button class="btn-gp-toggle" id="toggle-dgf" onclick="toggleGrandparent('dgf')">
+              <span class="toggle-icon">♂</span> Dam's Father
+            </button>
+            <button class="btn-gp-toggle" id="toggle-dgm" onclick="toggleGrandparent('dgm')">
+              <span class="toggle-icon">♀</span> Dam's Mother
+            </button>
           </div>
         </div>
-        <div class="section-label">Genetic Profile</div>
-        <div class="gene-list" id="sire-genes"></div>
-        <div class="empty-genes" id="sire-empty">No genes added yet.</div>
-        <button class="btn-add-gene" onclick="addGene('sire')">+ Add Gene</button>
       </div>
-    </div>
 
-    <!-- DAM -->
-    <div class="panel" id="dam-panel">
-      <div class="panel-header">
-        <div class="sex-badge female">♀</div>
-        <div class="panel-title">Dam</div>
-      </div>
-      <div class="panel-body">
-        <div class="pedigree-row">
-          <div class="field-group">
-            <label>Dam Name</label>
-            <input type="text" id="dam-name" placeholder="e.g. Comet">
+      <!-- DAM'S GRANDPARENTS -->
+      <div class="grandparents-area" id="dam-gp-area">
+        <div class="grandparent-panel-wrap" id="dgf-wrap">
+          <div class="panel" id="dgf-panel">
+            <div class="panel-header">
+              <div class="sex-badge male">♂</div>
+              <div class="panel-title">Dam's Father</div>
+            </div>
+            <div class="panel-body">
+              <div class="pedigree-row">
+                <div class="field-group">
+                  <label>Name</label>
+                  <input type="text" id="dgf-name" placeholder="Name">
+                </div>
+              </div>
+              <div class="section-label">Genetic Profile</div>
+              <div class="gene-list" id="dgf-genes"></div>
+              <div class="empty-genes" id="dgf-empty">No genes added yet.</div>
+              <button class="btn-add-gene" onclick="addGene('dgf')">+ Add Gene</button>
+            </div>
           </div>
         </div>
-        <div class="section-label">Genetic Profile</div>
-        <div class="gene-list" id="dam-genes"></div>
-        <div class="empty-genes" id="dam-empty">No genes added yet.</div>
-        <button class="btn-add-gene" onclick="addGene('dam')">+ Add Gene</button>
+        <div class="grandparent-panel-wrap" id="dgm-wrap">
+          <div class="panel" id="dgm-panel">
+            <div class="panel-header">
+              <div class="sex-badge female">♀</div>
+              <div class="panel-title">Dam's Mother</div>
+            </div>
+            <div class="panel-body">
+              <div class="pedigree-row">
+                <div class="field-group">
+                  <label>Name</label>
+                  <input type="text" id="dgm-name" placeholder="Name">
+                </div>
+              </div>
+              <div class="section-label">Genetic Profile</div>
+              <div class="gene-list" id="dgm-genes"></div>
+              <div class="empty-genes" id="dgm-empty">No genes added yet.</div>
+              <button class="btn-add-gene" onclick="addGene('dgm')">+ Add Gene</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+    </div><!-- end dam column -->
+
+  </div><!-- end parents-grid -->
   <div class="calculate-section">
-    <button class="btn-calculate" onclick="calculate()">Calculate Clutch Genetics</button>
+    <button class="btn-secondary btn-clear" onclick="clearAll()">Clear All</button>
+    <button class="btn-secondary" onclick="document.getElementById('load-input').click()">Load</button>
+    <input type="file" id="load-input" accept=".json" style="display:none" onchange="loadData(event)">
+    <button class="btn-calculate" id="btn-calculate" onclick="calculate()" disabled>Calculate Clutch Genetics</button>
+    <button class="btn-secondary" onclick="saveData()">Save</button>
+    <button class="btn-secondary btn-export" id="btn-export-png" onclick="exportPNG()" style="display:none">⬇ Export PNG</button>
+    <div class="calc-hint" id="calc-hint">Add at least one gene to Sire and Dam to calculate</div>
   </div>
   <div id="results-section">
     <div class="results-header">
@@ -733,6 +862,7 @@ function addGene(parent, prefillGene, prefillState) {
     row.remove();
     if (!list.children.length) empty.style.display = 'block';
     refreshAllGeneSelects(parent);
+    updateCalculateBtn();
   };
   row.appendChild(removeBtn);
   list.appendChild(row);
@@ -740,6 +870,7 @@ function addGene(parent, prefillGene, prefillState) {
   renderStates(row, geneToAdd, parent, id, prefillState);
   parentGenes[parent][id] = { gene: geneToAdd, state: prefillState || getDefaultState(geneToAdd) };
   refreshAllGeneSelects(parent);
+  updateCalculateBtn();
 }
 
 function refreshGeneSelect(sel, parent, currentGene) {
@@ -1016,6 +1147,84 @@ function formatPhenotype(combo) {
   };
 }
 
+function updateCalculateBtn() {
+  const sireHasGenes = Object.keys(parentGenes.sire).length > 0;
+  const damHasGenes = Object.keys(parentGenes.dam).length > 0;
+  const btn = document.getElementById('btn-calculate');
+  const hint = document.getElementById('calc-hint');
+  const exportBtn = document.getElementById('btn-export-png');
+  const ready = sireHasGenes && damHasGenes;
+  btn.disabled = !ready;
+  // Show export as long as at least one dragon has data
+  const anyData = sireHasGenes || damHasGenes ||
+    Object.keys(parentGenes.sgf).length > 0 || Object.keys(parentGenes.sgm).length > 0 ||
+    Object.keys(parentGenes.dgf).length > 0 || Object.keys(parentGenes.dgm).length > 0;
+  exportBtn.style.display = anyData ? '' : 'none';
+  if (!sireHasGenes && !damHasGenes) {
+    hint.textContent = 'Add at least one gene to Sire and Dam to calculate';
+  } else if (!sireHasGenes) {
+    hint.textContent = 'Add at least one gene to Sire to calculate';
+  } else if (!damHasGenes) {
+    hint.textContent = 'Add at least one gene to Dam to calculate';
+  } else {
+    hint.textContent = '';
+  }
+}
+
+function clearAll() {
+  ['sire','dam','sgf','sgm','dgf','dgm'].forEach(parent => {
+    parentGenes[parent] = {};
+    geneCounters[parent] = 0;
+    const list = document.getElementById(`${parent}-genes`);
+    const empty = document.getElementById(`${parent}-empty`);
+    if (list) list.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+  });
+  ['sire-name','dam-name','sgf-name','sgm-name','dgf-name','dgm-name'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['sgf','sgm','dgf','dgm'].forEach(key => {
+    const wrap = document.getElementById(`${key}-wrap`);
+    const btn = document.getElementById(`toggle-${key}`);
+    if (wrap) wrap.classList.remove('visible');
+    if (btn) btn.classList.remove('active');
+  });
+  const section = document.getElementById('results-section');
+  if (section) section.classList.remove('visible');
+  updateCalculateBtn();
+}
+
+function saveData() {
+  const data = {
+    names: {},
+    genes: {}
+  };
+  ['sire','dam','sgf','sgm','dgf','dgm'].forEach(parent => {
+    const nameEl = document.getElementById(`${parent}-name`);
+    data.names[parent] = nameEl ? nameEl.value : '';
+    data.genes[parent] = Object.values(parentGenes[parent]).map(g => ({ gene: g.gene, state: g.state }));
+  });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const sireName = data.names.sire || 'Sire';
+  const damName = data.names.dam || 'Dam';
+  a.download = `${sireName}_x_${damName}_lineage.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function toggleGrandparent(key) {
+  const wrap = document.getElementById(`${key}-wrap`);
+  const btn = document.getElementById(`toggle-${key}`);
+  if (!wrap || !btn) return;
+  const isVisible = wrap.classList.contains('visible');
+  wrap.classList.toggle('visible', !isVisible);
+  btn.classList.toggle('active', !isVisible);
+}
+
 function calculate() {
   const warnings = [];
   const infos = [];
@@ -1035,7 +1244,6 @@ function calculate() {
     ...dgmGenes.map(g => g.gene)
   ])];
   if (allGeneNames.length === 0) {
-    alert('Please add at least one gene to calculate.');
     return;
   }
   [...sireGenes, ...damGenes].forEach(g => {
@@ -1140,6 +1348,7 @@ function calculate() {
 }
 
 function renderResults(results, warnings, infos) {
+  lastResults = results;
   const section = document.getElementById('results-section');
   const body = document.getElementById('results-body');
   const warnContainer = document.getElementById('warnings-container');
@@ -1187,8 +1396,240 @@ function renderResults(results, warnings, infos) {
     body.appendChild(tr);
   });
   section.classList.add('visible');
+  document.getElementById('btn-export-png').style.display = '';
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
+let lastResults = [];
+
+function loadData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      clearAll();
+      ['sire','dam','sgf','sgm','dgf','dgm'].forEach(parent => {
+        const nameEl = document.getElementById(`${parent}-name`);
+        if (nameEl && data.names && data.names[parent]) nameEl.value = data.names[parent];
+        if (data.genes && data.genes[parent] && data.genes[parent].length > 0) {
+          if (['sgf','sgm','dgf','dgm'].includes(parent)) {
+            const wrap = document.getElementById(`${parent}-wrap`);
+            const btn = document.getElementById(`toggle-${parent}`);
+            if (wrap && !wrap.classList.contains('visible')) {
+              wrap.classList.add('visible');
+              if (btn) btn.classList.add('active');
+            }
+          }
+          data.genes[parent].forEach(g => {
+            if (GENES[g.gene]) addGene(parent, g.gene, g.state);
+          });
+        }
+      });
+    } catch(err) { console.error('Failed to load:', err); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function exportPNG() {
+  // If calculate hasn't been run yet but both parents have genes, run it first
+  const sireHasGenes = Object.keys(parentGenes.sire).length > 0;
+  const damHasGenes = Object.keys(parentGenes.dam).length > 0;
+  if (sireHasGenes && damHasGenes && lastResults.length === 0) {
+    calculate();
+  }
+
+  const sireName = document.getElementById('sire-name').value || 'Sire';
+  const damName = document.getElementById('dam-name').value || 'Dam';
+  const sireGenes = Object.values(parentGenes.sire);
+  const damGenes = Object.values(parentGenes.dam);
+
+  const gpInfo = {};
+  ['sgf','sgm','dgf','dgm'].forEach(k => {
+    const genes = Object.values(parentGenes[k]);
+    const name = document.getElementById(`${k}-name`)?.value?.trim() || '';
+    if (genes.length > 0 || name) gpInfo[k] = { name, genes };
+  });
+  const gpTitles = { sgf:"Sire's Father", sgm:"Sire's Mother", dgf:"Dam's Father", dgm:"Dam's Mother" };
+  const gpIsMale = { sgf:true, sgm:false, dgf:true, dgm:false };
+
+  function stateTag(state) {
+    const map = {
+      'Visual': { bg:'rgba(212,168,67,0.18)', border:'rgba(212,168,67,0.5)', color:'#d4a843' },
+      'Visual (Leatherback)': { bg:'rgba(212,168,67,0.18)', border:'rgba(212,168,67,0.5)', color:'#d4a843' },
+      'Super (Silkback)': { bg:'rgba(196,92,58,0.18)', border:'rgba(196,92,58,0.5)', color:'#e8866a' },
+      'Het': { bg:'rgba(100,158,92,0.15)', border:'rgba(100,158,92,0.45)', color:'#7fbe71' },
+    };
+    const style = map[state] || (state.includes('Poss')
+      ? { bg:'rgba(100,130,200,0.15)', border:'rgba(100,130,200,0.45)', color:'#7a9ee0' }
+      : { bg:'rgba(74,68,56,0.35)', border:'#2e2a22', color:'#8a7f6e' });
+    return `<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;letter-spacing:0.04em;background:${style.bg};border:1px solid ${style.border};color:${style.color};white-space:nowrap">${state}</span>`;
+  }
+
+  function panelHTML(title, isMale, name, genes) {
+    const sexColor = isMale ? '#7aabee' : '#ee7aaa';
+    const sexBg = isMale ? 'rgba(100,150,220,0.15)' : 'rgba(220,100,130,0.15)';
+    const sexBorder = isMale ? 'rgba(100,150,220,0.35)' : 'rgba(220,100,130,0.35)';
+    const sym = isMale ? '♂' : '♀';
+    let genesHTML = '';
+    if (genes.length === 0) {
+      genesHTML = `<div style="color:#4a4438;font-size:11px;padding:8px 0">No genes</div>`;
+    } else {
+      genesHTML = genes.map(g => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #1e1c18">
+          <span style="font-size:11px;color:#e8e0d0">${g.gene}</span>
+          ${stateTag(g.state)}
+        </div>`).join('');
+    }
+    return `
+      <div style="background:#1a1814;border:1px solid #2e2a22;border-radius:6px;overflow:hidden;flex:1;min-width:0">
+        <div style="background:#242018;border-bottom:1px solid #2e2a22;padding:10px 16px;display:flex;align-items:center;gap:10px">
+          <div style="width:22px;height:22px;border-radius:50%;background:${sexBg};border:1px solid ${sexBorder};display:flex;align-items:center;justify-content:center;color:${sexColor};font-size:13px;font-weight:700;flex-shrink:0">${sym}</div>
+          <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:0.05em;text-transform:uppercase;color:#e8e0d0">${title}</span>
+          ${name ? `<span style="margin-left:auto;color:${sexColor};font-size:11px">${name}</span>` : ''}
+        </div>
+        <div style="padding:14px 16px">
+          <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#4a4438;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #2e2a22">Genetic Profile</div>
+          ${genesHTML}
+        </div>
+      </div>`;
+  }
+
+  let gpSections = '';
+  [['sgf','sgm'],['dgf','dgm']].forEach(([lk,rk]) => {
+    if (!gpInfo[lk] && !gpInfo[rk]) return;
+    const left = gpInfo[lk] ? panelHTML(gpTitles[lk], gpIsMale[lk], gpInfo[lk].name, gpInfo[lk].genes) : `<div style="flex:1"></div>`;
+    const right = gpInfo[rk] ? panelHTML(gpTitles[rk], gpIsMale[rk], gpInfo[rk].name, gpInfo[rk].genes) : `<div style="flex:1"></div>`;
+    gpSections += `
+      <div style="margin-bottom:6px">
+        <div style="font-size:10px;letter-spacing:0.15em;color:#4a4438;text-transform:uppercase;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid #2e2a22">Grandparents</div>
+        <div style="display:flex;gap:16px">${left}${right}</div>
+      </div>`;
+  });
+
+  let resultsHTML = '';
+  if (lastResults.length > 0) {
+    const rows = lastResults.map((r, i) => {
+      const pct = (r.prob * 100).toFixed(1);
+      const barW = Math.round(r.prob * 200);
+      let tags = '';
+      if (r.hasSuper) tags += `<span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;background:rgba(196,92,58,0.18);border:1px solid rgba(196,92,58,0.45);color:#e8866a;margin-right:4px">Super</span>`;
+      else if (r.hasVisual) tags += `<span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;background:rgba(212,168,67,0.18);border:1px solid rgba(212,168,67,0.45);color:#d4a843;margin-right:4px">Visual</span>`;
+      if (r.hasHet) tags += `<span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;background:rgba(100,158,92,0.15);border:1px solid rgba(100,158,92,0.4);color:#7fbe71;margin-right:4px">Het</span>`;
+      return `
+        <tr style="background:${i%2===0?'#1a1814':'#161410'}">
+          <td style="padding:10px 14px;border-bottom:1px solid #2e2a22;vertical-align:middle">
+            <div>${tags}<span style="font-family:'Syne',sans-serif;font-weight:600;font-size:12px;color:#e8e0d0">${r.phenotype}</span></div>
+            <div style="font-size:10px;color:#8a7f6e;font-style:italic;margin-top:3px">${r.genotype}</div>
+          </td>
+          <td style="padding:10px 14px;border-bottom:1px solid #2e2a22;vertical-align:middle;width:220px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="flex:1;height:5px;background:#2e2a22;border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:${barW}px;max-width:100%;background:linear-gradient(90deg,#c47c2a,#d4a843);border-radius:3px"></div>
+              </div>
+              <span style="font-size:12px;color:#d4a843;font-weight:500;min-width:40px;text-align:right">${pct}%</span>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+    resultsHTML = `
+      <div style="margin-top:24px">
+        <div style="font-size:10px;letter-spacing:0.15em;color:#4a4438;text-transform:uppercase;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid #2e2a22">Clutch Results — ${sireName} × ${damName}</div>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #2e2a22;border-radius:6px;overflow:hidden">
+          <thead>
+            <tr style="background:#242018">
+              <th style="padding:8px 14px;text-align:left;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#8a7f6e;font-weight:400;border-bottom:1px solid #2e2a22">Phenotype / Genotype</th>
+              <th style="padding:8px 14px;text-align:left;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#8a7f6e;font-weight:400;border-bottom:1px solid #2e2a22;width:220px">Probability</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  const html = `
+    <div id="png-export-root" style="
+      width:880px;
+      background:#0f0e0c;
+      color:#e8e0d0;
+      font-family:'DM Mono',monospace;
+      font-size:13px;
+      padding:36px 40px 40px;
+      position:relative;
+    ">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#d4a843 25%,#d4a843 75%,transparent)"></div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1">
+            Linage <span style="color:#d4a843">Tool</span>
+          </div>
+          <div style="font-size:10px;color:#8a7f6e;letter-spacing:0.14em;text-transform:uppercase;margin-top:6px">Scrappy's Exotic Yard · Bearded Dragon Phenotype & Probability Engine</div>
+        </div>
+        <div style="font-size:10px;color:#4a4438;letter-spacing:0.1em">${new Date().toLocaleDateString()}</div>
+      </div>
+      <div style="border-top:1px solid #2e2a22;padding-top:20px;margin-bottom:20px">
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#d4a843;letter-spacing:-0.01em">${sireName} × ${damName}</div>
+          <div style="font-size:10px;color:#8a7f6e;margin-top:6px">
+            ♂ ${sireGenes.map(g=>`${g.state} ${g.gene}`).join(' · ') || '—'}
+          </div>
+          <div style="font-size:10px;color:#8a7f6e;margin-top:2px">
+            ♀ ${damGenes.map(g=>`${g.state} ${g.gene}`).join(' · ') || '—'}
+          </div>
+        </div>
+        ${gpSections}
+        <div style="margin-top:${gpSections ? '16px' : '0'}">
+          <div style="font-size:10px;letter-spacing:0.15em;color:#4a4438;text-transform:uppercase;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid #2e2a22">Parents</div>
+          <div style="display:flex;gap:16px">
+            ${panelHTML('Sire', true, sireName, sireGenes)}
+            ${panelHTML('Dam', false, damName, damGenes)}
+          </div>
+        </div>
+        ${resultsHTML}
+      </div>
+    </div>`;
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1';
+  wrapper.innerHTML = html;
+  document.body.appendChild(wrapper);
+
+  const exportBtn = document.getElementById('btn-export-png');
+  exportBtn.textContent = 'Generating…';
+  exportBtn.disabled = true;
+
+  // Wait a tick for fonts to apply, then snapshot
+  setTimeout(() => {
+    const target = wrapper.querySelector('#png-export-root');
+    html2canvas(target, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#0f0e0c',
+      logging: false,
+      width: 880,
+    }).then(canvas => {
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${sireName}_x_${damName}_clutch.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+        document.body.removeChild(wrapper);
+        exportBtn.textContent = '⬇ Export PNG';
+        exportBtn.disabled = false;
+      }, 'image/png');
+    }).catch(err => {
+      console.error('Export failed:', err);
+      document.body.removeChild(wrapper);
+      exportBtn.textContent = '⬇ Export PNG';
+      exportBtn.disabled = false;
+    });
+  }, 300);
+}
+
 </script>
 </body>
 </html>
