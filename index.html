@@ -89,9 +89,15 @@
   }
   .pedigree-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
     margin-bottom: 24px;
+  }
+  .lineage-column {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
   }
   .pedigree-label {
     grid-column: 1 / 5;
@@ -140,6 +146,28 @@
   .sex-badge.male { background: rgba(100,150,220,0.15); color: #7aabee; border: 1px solid rgba(100,150,220,0.3); }
   .sex-badge.female { background: rgba(220,100,130,0.15); color: #ee7aaa; border: 1px solid rgba(220,100,130,0.3); }
   .panel-body { padding: 18px; }
+  .lineage-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .lineage-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .lineage-toggle input[type="checkbox"] {
+    accent-color: var(--accent);
+  }
   /* PEDIGREE */
   .pedigree-row {
     display: grid;
@@ -435,6 +463,8 @@
     .app-container { padding: 20px; }
     .gene-row { grid-template-columns: 1fr; }
     .pedigree-row { grid-template-columns: 1fr; }
+    .panel-header { padding: 12px 14px; }
+    .panel-body { padding: 14px; }
   }
 </style>
 </head>
@@ -450,11 +480,38 @@
 </header>
 <div class="app-container">
   <div class="pedigree-grid">
-<!--     <div class="pedigree-label gp">Grandparents</div>
-    <div class="pedigree-label p">Parents</div> -->
-    
-    <!-- PATERNAL GRANDPARENTS -->
-    <div class="panel" id="sgf-panel">
+    <div class="lineage-column">
+      <!-- SIRE -->
+      <div class="panel" id="sire-panel">
+        <div class="panel-header">
+          <div class="sex-badge male">♂</div>
+          <div class="panel-title">Sire</div>
+        </div>
+        <div class="panel-body">
+        <div class="pedigree-row">
+          <div class="field-group">
+            <label>Sire Name</label>
+            <input type="text" id="sire-name" placeholder="e.g. Skippy">
+          </div>
+        </div>
+        <div class="lineage-toggles">
+          <label class="lineage-toggle">
+            <input type="checkbox" id="sire-father-toggle" onchange="toggleAncestorPanel('sgf', this.checked)">
+            Father
+          </label>
+          <label class="lineage-toggle">
+            <input type="checkbox" id="sire-mother-toggle" onchange="toggleAncestorPanel('sgm', this.checked)">
+            Mother
+          </label>
+        </div>
+        <div class="section-label">Genetic Profile</div>
+        <div class="gene-list" id="sire-genes"></div>
+        <div class="empty-genes" id="sire-empty">No genes added yet.</div>
+        <button class="btn-add-gene" onclick="addGene('sire')">+ Add Gene</button>
+      </div>
+    </div>
+
+    <div class="panel" id="sgf-panel" style="display:none;">
       <div class="panel-header">
         <div class="sex-badge male">♂</div>
         <div class="panel-title">Sire's Father</div>
@@ -472,8 +529,8 @@
         <button class="btn-add-gene" onclick="addGene('sgf')">+ Add Gene</button>
       </div>
     </div>
-    
-    <div class="panel" id="sgm-panel">
+
+    <div class="panel" id="sgm-panel" style="display:none;">
       <div class="panel-header">
         <div class="sex-badge female">♀</div>
         <div class="panel-title">Sire's Mother</div>
@@ -491,9 +548,40 @@
         <button class="btn-add-gene" onclick="addGene('sgm')">+ Add Gene</button>
       </div>
     </div>
+  </div>
 
-    <!-- MATERNAL GRANDPARENTS -->
-    <div class="panel" id="dgf-panel">
+  <div class="lineage-column">
+    <!-- DAM -->
+    <div class="panel" id="dam-panel">
+      <div class="panel-header">
+        <div class="sex-badge female">♀</div>
+        <div class="panel-title">Dam</div>
+      </div>
+      <div class="panel-body">
+        <div class="pedigree-row">
+          <div class="field-group">
+            <label>Dam Name</label>
+            <input type="text" id="dam-name" placeholder="e.g. Comet">
+          </div>
+        </div>
+        <div class="lineage-toggles">
+          <label class="lineage-toggle">
+            <input type="checkbox" id="dam-father-toggle" onchange="toggleAncestorPanel('dgf', this.checked)">
+            Father
+          </label>
+          <label class="lineage-toggle">
+            <input type="checkbox" id="dam-mother-toggle" onchange="toggleAncestorPanel('dgm', this.checked)">
+            Mother
+          </label>
+        </div>
+        <div class="section-label">Genetic Profile</div>
+        <div class="gene-list" id="dam-genes"></div>
+        <div class="empty-genes" id="dam-empty">No genes added yet.</div>
+        <button class="btn-add-gene" onclick="addGene('dam')">+ Add Gene</button>
+      </div>
+    </div>
+
+    <div class="panel" id="dgf-panel" style="display:none;">
       <div class="panel-header">
         <div class="sex-badge male">♂</div>
         <div class="panel-title">Dam's Father</div>
@@ -512,7 +600,7 @@
       </div>
     </div>
 
-    <div class="panel" id="dgm-panel">
+    <div class="panel" id="dgm-panel" style="display:none;">
       <div class="panel-header">
         <div class="sex-badge female">♀</div>
         <div class="panel-title">Dam's Mother</div>
@@ -528,46 +616,6 @@
         <div class="gene-list" id="dgm-genes"></div>
         <div class="empty-genes" id="dgm-empty">No genes added yet.</div>
         <button class="btn-add-gene" onclick="addGene('dgm')">+ Add Gene</button>
-      </div>
-    </div>
-
-    <!-- SIRE -->
-    <div class="panel" id="sire-panel">
-      <div class="panel-header">
-        <div class="sex-badge male">♂</div>
-        <div class="panel-title">Sire</div>
-      </div>
-      <div class="panel-body">
-        <div class="pedigree-row">
-          <div class="field-group">
-            <label>Sire Name</label>
-            <input type="text" id="sire-name" placeholder="e.g. Skippy">
-          </div>
-        </div>
-        <div class="section-label">Genetic Profile</div>
-        <div class="gene-list" id="sire-genes"></div>
-        <div class="empty-genes" id="sire-empty">No genes added yet.</div>
-        <button class="btn-add-gene" onclick="addGene('sire')">+ Add Gene</button>
-      </div>
-    </div>
-
-    <!-- DAM -->
-    <div class="panel" id="dam-panel">
-      <div class="panel-header">
-        <div class="sex-badge female">♀</div>
-        <div class="panel-title">Dam</div>
-      </div>
-      <div class="panel-body">
-        <div class="pedigree-row">
-          <div class="field-group">
-            <label>Dam Name</label>
-            <input type="text" id="dam-name" placeholder="e.g. Comet">
-          </div>
-        </div>
-        <div class="section-label">Genetic Profile</div>
-        <div class="gene-list" id="dam-genes"></div>
-        <div class="empty-genes" id="dam-empty">No genes added yet.</div>
-        <button class="btn-add-gene" onclick="addGene('dam')">+ Add Gene</button>
       </div>
     </div>
   </div>
@@ -661,6 +709,26 @@ const GENES = {
 
 let geneCounters = { sgf: 0, sgm: 0, dgf: 0, dgm: 0, sire: 0, dam: 0 };
 const parentGenes = { sgf: {}, sgm: {}, dgf: {}, dgm: {}, sire: {}, dam: {} };
+
+function toggleAncestorPanel(ancestor, isVisible) {
+  const panel = document.getElementById(`${ancestor}-panel`);
+  if (!panel) return;
+  panel.style.display = isVisible ? 'block' : 'none';
+  if (!isVisible) {
+    resetAncestor(ancestor);
+  }
+}
+
+function resetAncestor(ancestor) {
+  parentGenes[ancestor] = {};
+  geneCounters[ancestor] = 0;
+  const list = document.getElementById(`${ancestor}-genes`);
+  const empty = document.getElementById(`${ancestor}-empty`);
+  if (list) list.innerHTML = '';
+  if (empty) empty.style.display = 'block';
+  const input = document.getElementById(`${ancestor}-name`);
+  if (input) input.value = '';
+}
 
 function getUsedGenes(parent) {
   return Object.values(parentGenes[parent]).map(g => g.gene);
